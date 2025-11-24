@@ -1,0 +1,6 @@
+@rootURL = http://localhost:5291
+
+GET {{rootURL}}/api/
+Accept: application/json
+
+###
