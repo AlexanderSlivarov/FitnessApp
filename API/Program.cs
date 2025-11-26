@@ -1,4 +1,6 @@
 using Common.Persistance;
+using Common.Services.Implementations;
+using Common.Services.Interfaces;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,6 +30,7 @@ builder.Services.AddDbContext<FitnessAppDbContext>(options =>
     .UseLazyLoadingProxies()
 );
 builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddScoped<IUserServices, UserServices>();
 
 var app = builder.Build();
 
@@ -37,11 +40,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowFrontend");
-
 app.UseRouting();
-
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();

@@ -1,4 +1,4 @@
-@rootURL = http://localhost:5291
+@rootURL = https://localhost:7179
 
 GET {{rootURL}}/api/users
 Accept: application/json
