@@ -2,6 +2,7 @@
 using API.Infrastructure.RequestDTOs.Users;
 using Common.Entities;
 using Common.Enums;
+using Common.Security;
 using Common.Services.Implementations;
 using Common.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
@@ -15,17 +16,15 @@ namespace API.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly IUserServices _userService;
-        private readonly PasswordHasher<User> _passwordHasher;
+        private readonly IUserServices _userService;      
         public UsersController(IUserServices userService)
         {
-            _userService = userService;
-            _passwordHasher = new PasswordHasher<User>();
+            _userService = userService;         
         }
 
         [HttpGet]
         public async Task<IActionResult> Get([FromBody] UserGetRequest model)
-        {            
+        {
             model.Pager = model.Pager ?? new PagerRequest();
             model.Pager.Page = model.Pager.Page <= 0
                                     ? 1
@@ -75,12 +74,13 @@ namespace API.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] UserRequest model)
         {
-            var hashedPassword = _passwordHasher.HashPassword(null, model.Password);
+            var (hash, salt) = PasswordHasher.HashPassword(model.Password);
 
-            var newUser = new User
+            User newUser = new User
             {
                 Username = model.Username,
-                PasswordHash = hashedPassword,
+                PasswordHash = hash,
+                PasswordSalt = salt,
                 FirstName = model.FirstName,
                 LastName = model.LastName,
                 PhoneNumber = model.PhoneNumber,
@@ -110,7 +110,9 @@ namespace API.Controllers
 
             if (!string.IsNullOrEmpty(model.Password))
             {
-                userForUpdate.PasswordHash = _passwordHasher.HashPassword(userForUpdate, model.Password);
+                var (hash, salt) = PasswordHasher.HashPassword(model.Password);
+                userForUpdate.PasswordHash = hash;
+                userForUpdate.PasswordSalt = salt;
             }
             if (model.Role.HasValue)
             {
