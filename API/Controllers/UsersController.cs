@@ -1,6 +1,7 @@
 ﻿using API.Infrastructure.RequestDTOs.Shared;
 using API.Infrastructure.RequestDTOs.Users;
 using Common.Entities;
+using Common.Enums;
 using Common.Services.Implementations;
 using Common.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
@@ -37,14 +38,15 @@ namespace API.Controllers
                                 ? model.OrderBy
                                 : "Id";
 
-            model.Filter ??= new UserGetFilterRequest();           
+            model.Filter ??= new UserGetFilterRequest();
 
             Expression<Func<User, bool>> filter =
             u =>
                 (string.IsNullOrEmpty(model.Filter.Username) || u.Username.Contains(model.Filter.Username)) &&
                 (string.IsNullOrEmpty(model.Filter.FirstName) || u.FirstName.Contains(model.Filter.FirstName)) &&
                 (string.IsNullOrEmpty(model.Filter.LastName) || u.LastName.Contains(model.Filter.LastName)) &&
-                (string.IsNullOrEmpty(model.Filter.PhoneNumber) || u.PhoneNumber.Contains(model.Filter.PhoneNumber));
+                (string.IsNullOrEmpty(model.Filter.PhoneNumber) || u.PhoneNumber.Contains(model.Filter.PhoneNumber)) &&
+                (!model.Filter.Role.HasValue || u.Role.Equals(model.Filter.Role.Value));
 
             List<User> users = await _userService.GetAllAsync(filter, model.OrderBy, model.SortAsc, model.Pager.Page, model.Pager.PageSize);
 
@@ -81,7 +83,8 @@ namespace API.Controllers
                 PasswordHash = hashedPassword,
                 FirstName = model.FirstName,
                 LastName = model.LastName,
-                PhoneNumber = model.PhoneNumber
+                PhoneNumber = model.PhoneNumber,
+                Role = model.Role ?? UserRole.Member
             };
 
             await _userService.SaveAsync(newUser);
@@ -108,6 +111,10 @@ namespace API.Controllers
             if (!string.IsNullOrEmpty(model.Password))
             {
                 userForUpdate.PasswordHash = _passwordHasher.HashPassword(userForUpdate, model.Password);
+            }
+            if (model.Role.HasValue)
+            {
+                userForUpdate.Role = model.Role.Value;
             }
 
             await _userService.SaveAsync(userForUpdate);
