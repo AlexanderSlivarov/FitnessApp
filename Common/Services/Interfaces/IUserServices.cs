@@ -8,5 +8,7 @@ using System.Threading.Tasks;
 namespace Common.Services.Interfaces
 {
     public interface IUserServices : IBaseService<User>
-    { }
+    {
+        Task<User> GetByUsernameAsync(string username);
+    }
 }

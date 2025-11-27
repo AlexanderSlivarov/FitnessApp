@@ -8,8 +8,8 @@ namespace Common.Enums
 {
     public enum UserRole
     {
-        Admin,
-        Instructor,        
-        Member
+        Member = 0,
+        Instructor = 1,
+        Admin = 2         
     }
 }

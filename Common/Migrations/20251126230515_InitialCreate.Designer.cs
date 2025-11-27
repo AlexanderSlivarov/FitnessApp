@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Common.Migrations
 {
     [DbContext(typeof(FitnessAppDbContext))]
-    [Migration("20251125223357_InitialCreate")]
+    [Migration("20251126230515_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -53,7 +53,15 @@ namespace Common.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("PasswordSalt")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -63,6 +71,20 @@ namespace Common.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2025, 11, 27, 0, 38, 0, 0, DateTimeKind.Utc),
+                            FirstName = "System",
+                            LastName = "Administrator",
+                            PasswordHash = "kT+sqQwXM1NrXexPcT3dIrtKlGhsixrUS3QEWMihPe8=",
+                            PasswordSalt = "AJN//OPj7+3RWyh601otNA==",
+                            PhoneNumber = "0876609216",
+                            Role = "Admin",
+                            Username = "admin"
+                        });
                 });
 #pragma warning restore 612, 618
         }

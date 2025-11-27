@@ -13,8 +13,8 @@ namespace Common.Services.Implementations
 {
     public class BaseService<T> : IBaseService<T> where T : BaseEntity
     {
-        private DbContext _context;
-        private DbSet<T> _items;
+        protected DbContext _context;
+        protected DbSet<T> _items;
 
         public BaseService(FitnessAppDbContext context)
         {
@@ -71,6 +71,11 @@ namespace Common.Services.Implementations
         {            
             _items.Remove(item);
             await _context.SaveChangesAsync();
-        }        
+        }
+
+        public virtual IQueryable<T> Query()
+        {
+            return _items.AsQueryable();
+        }
     }
 }

@@ -14,5 +14,6 @@ namespace Common.Services.Interfaces
         Task<T> GetByIdAsync(int id);
         Task SaveAsync(T item);
         Task DeleteAsync(T item);
+        IQueryable<T> Query();
     }
 }

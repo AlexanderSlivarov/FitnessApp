@@ -5,6 +5,7 @@ using Common.Enums;
 using Common.Security;
 using Common.Services.Implementations;
 using Common.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
@@ -14,6 +15,7 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class UsersController : ControllerBase
     {
         private readonly IUserServices _userService;      
@@ -73,7 +75,7 @@ namespace API.Controllers
 
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] UserRequest model)
-        {
+        {            
             var (hash, salt) = PasswordHasher.HashPassword(model.Password);
 
             User newUser = new User

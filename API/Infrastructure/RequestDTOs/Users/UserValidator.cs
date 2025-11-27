@@ -22,7 +22,7 @@ namespace API.Infrastructure.RequestDTOs.Users
 
             RuleFor(i => i.PhoneNumber)
                 .NotEmpty().WithMessage("Phone number is required.")
-                .Matches(@"^\+?[1-9]\d{1,14}$").WithMessage("Invalid phone number format.");
+                .Matches(@"^\+?[1-9]\d{1,14}$").WithMessage("Invalid phone number format.");            
         }
     }
 }
