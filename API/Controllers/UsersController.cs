@@ -47,11 +47,12 @@ namespace API.Controllers
                 (string.IsNullOrEmpty(model.Filter.FirstName) || u.FirstName.Contains(model.Filter.FirstName)) &&
                 (string.IsNullOrEmpty(model.Filter.LastName) || u.LastName.Contains(model.Filter.LastName)) &&
                 (string.IsNullOrEmpty(model.Filter.PhoneNumber) || u.PhoneNumber.Contains(model.Filter.PhoneNumber)) &&
-                (!model.Filter.Role.HasValue || u.Role.Equals(model.Filter.Role.Value));
+                (!model.Filter.Role.HasValue || u.Role.Equals(model.Filter.Role.Value) &&
+                (!model.Filter.Gender.HasValue || u.Gender.Equals(model.Filter.Gender.Value)));
 
             List<User> users = await _userService.GetAllAsync(filter, model.OrderBy, model.SortAsc, model.Pager.Page, model.Pager.PageSize);
 
-            if (users == null || !users.Any())
+            if (users is null || !users.Any())
             {
                 return NotFound("No users found matching the given criteria.");
             }
@@ -65,7 +66,7 @@ namespace API.Controllers
         {
             User user = await _userService.GetByIdAsync(id);
 
-            if (user == null)
+            if (user is null)
             {
                 return NotFound("User not found.");
             }
@@ -86,6 +87,7 @@ namespace API.Controllers
                 FirstName = model.FirstName,
                 LastName = model.LastName,
                 PhoneNumber = model.PhoneNumber,
+                Gender = model.Gender,
                 Role = model.Role ?? UserRole.Member
             };
 
@@ -100,7 +102,7 @@ namespace API.Controllers
         {
             User userForUpdate = await _userService.GetByIdAsync(id);
 
-            if (userForUpdate == null)
+            if (userForUpdate is null)
             {
                 return NotFound("User not found.");
             }
@@ -132,7 +134,7 @@ namespace API.Controllers
         {
             User userForDelete = await _userService.GetByIdAsync(id);
 
-            if (userForDelete == null)
+            if (userForDelete is null)
             {
                 return NotFound("User not found.");
             }

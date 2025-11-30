@@ -54,6 +54,8 @@ builder.Services.AddDbContext<FitnessAppDbContext>(options =>
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddScoped<IUserServices, UserServices>();
 builder.Services.AddScoped<ITokenServices, TokenServices>();
+builder.Services.AddScoped<IActivityServices, ActivityServices>();
+builder.Services.AddScoped<IInstructorServices, InstructorServices>();
 
 var app = builder.Build();
 

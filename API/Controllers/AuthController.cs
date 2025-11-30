@@ -39,7 +39,7 @@ namespace API.Controllers
 
             User loggedUser = await _userService.GetByUsernameAsync(model.Username);
 
-            if (loggedUser == null)
+            if (loggedUser is null)
             {
                 ModelState.AddModelError("Global", "Invalid username or password.");
                 return Unauthorized(ServiceResultExtentions<List<Error>>.Failure(null, ModelState));

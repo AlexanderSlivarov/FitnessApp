@@ -10,6 +10,9 @@ namespace Common.Persistance
         public FitnessAppDbContext(DbContextOptions<FitnessAppDbContext> options)
             : base(options) { }
         public DbSet<User> Users { get; set; }
+        public DbSet<Activity> Activities { get; set; }
+        public DbSet<Session> Sessions { get; set; }
+        public DbSet<Instructor> Instructors { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             #region User
@@ -18,11 +21,16 @@ namespace Common.Persistance
             {
                 entity.HasKey(u => u.Id);
 
+                entity.Property(u => u.Username).IsRequired();
                 entity.Property(u => u.PasswordHash).IsRequired();
                 entity.Property(u => u.PasswordSalt).IsRequired();
                 entity.Property(u => u.FirstName).IsRequired();
                 entity.Property(u => u.LastName).IsRequired();
                 entity.Property(u => u.PhoneNumber).IsRequired();
+
+                entity.Property(u => u.Gender)
+                      .HasConversion<string>()
+                      .IsRequired(false);
                
                 entity.Property(u => u.Role)
                       .HasConversion<string>()                  
@@ -43,6 +51,52 @@ namespace Common.Persistance
                 PhoneNumber = "0876609216",
                 Role = UserRole.Admin,                
                 CreatedAt = new DateTime(2025, 11, 27, 0, 38, 0, DateTimeKind.Utc)
+            });
+
+            #endregion
+
+            #region Activity
+
+            modelBuilder.Entity<Activity>(entity =>
+            {
+                entity.HasKey(a => a.Id);
+
+                entity.Property(a => a.Name).IsRequired();
+                entity.Property(a => a.Description).IsRequired();
+            });
+
+            #endregion
+
+            #region Session
+
+            modelBuilder.Entity<Session>(entity =>
+            {
+                entity.HasKey(i => i.Id);
+
+                entity.Property(s => s.ActivityId).IsRequired();
+
+                entity.HasOne(s => s.Activity)
+                      .WithMany(s => s.Sessions)
+                      .HasForeignKey(s => s.ActivityId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            #endregion
+
+            #region Instructor
+
+            modelBuilder.Entity<Instructor>(entity =>
+            {
+                entity.HasKey(i => i.Id);
+
+                entity.Property(i => i.UserId).IsRequired();
+                entity.Property(i => i.Bio).IsRequired();
+                entity.Property(i => i.ExperienceYears).IsRequired();
+
+                entity.HasOne(i => i.User)
+                      .WithOne()
+                      .HasForeignKey<Instructor>(i => i.UserId)
+                      .OnDelete(DeleteBehavior.Restrict);
             });
 
             #endregion

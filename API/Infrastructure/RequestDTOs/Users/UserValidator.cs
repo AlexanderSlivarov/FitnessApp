@@ -22,7 +22,13 @@ namespace API.Infrastructure.RequestDTOs.Users
 
             RuleFor(i => i.PhoneNumber)
                 .NotEmpty().WithMessage("Phone number is required.")
-                .Matches(@"^\+?[1-9]\d{1,14}$").WithMessage("Invalid phone number format.");            
+                .Matches(@"^\+?[1-9]\d{1,14}$").WithMessage("Invalid phone number format.");
+
+            RuleFor(i => i.Gender)
+                .IsInEnum().When(i => i.Gender.HasValue);
+
+            RuleFor(i => i.Role)
+                .IsInEnum().When(i => i.Role.HasValue);
         }
     }
 }

@@ -26,7 +26,7 @@ namespace Common.Services.Implementations
         {
             var query = _items.AsQueryable();
 
-            if (filter != null)
+            if (filter is not null)
             {
                 query = query.Where(filter);
             }
