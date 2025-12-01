@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace Common.Services.Interfaces
 {
-    public interface IActivityServices : IBaseService<Activity>
+    public interface ISessionServices : IBaseService<Session>
     {
-        Task<List<Activity>> GetActivitiesAsync(Expression<Func<Activity, bool>> filter);
+        Task<List<Session>> GetSessionsAsync(Expression<Func<Session, bool>> filter);
     }
 }

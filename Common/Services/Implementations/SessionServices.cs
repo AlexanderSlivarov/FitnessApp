@@ -11,20 +11,21 @@ using System.Threading.Tasks;
 
 namespace Common.Services.Implementations
 {
-    public class InstructorServices : BaseService<Instructor>, IInstructorServices
+    public class SessionServices : BaseService<Session>, ISessionServices
     {
         private readonly FitnessAppDbContext _context;
-
-        public InstructorServices(FitnessAppDbContext context) : base(context)
+        public SessionServices(FitnessAppDbContext context) : base(context) 
         {
             _context = context;
         }
 
-        public async Task<List<Instructor>> GetInstructorsAsync(Expression<Func<Instructor, bool>> filter)
+        public async Task<List<Session>> GetSessionsAsync(Expression<Func<Session, bool>> filter)
         {
-            return await _context.Instructors
-                .Include(i => i.User)           
-                .Include(i => i.Sessions)       
+            return await _context.Sessions
+                .Include(s => s.Instructor)
+                    .ThenInclude(i => i.User)
+                .Include(s => s.Activity)
+                .Include(s => s.Studio)
                 .Where(filter)
                 .ToListAsync();
         }

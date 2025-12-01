@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace Common.Services.Interfaces
 {
-    public interface IActivityServices : IBaseService<Activity>
+    public interface IStudioServices : IBaseService<Studio> 
     {
-        Task<List<Activity>> GetActivitiesAsync(Expression<Func<Activity, bool>> filter);
-    }
+        Task<List<Studio>> GetStudiosAsync(Expression<Func<Studio, bool>> filter);
+    }    
 }

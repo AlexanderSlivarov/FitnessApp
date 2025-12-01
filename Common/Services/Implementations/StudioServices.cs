@@ -11,17 +11,17 @@ using System.Threading.Tasks;
 
 namespace Common.Services.Implementations
 {
-    public class ActivityServices : BaseService<Activity>, IActivityServices
+    public class StudioServices : BaseService<Studio>, IStudioServices
     {
-        private readonly FitnessAppDbContext _context;
-        public ActivityServices(FitnessAppDbContext context) : base(context) 
+        public readonly FitnessAppDbContext _context;
+        public StudioServices(FitnessAppDbContext context) : base(context) 
         {
             _context = context;
         }
 
-        public async Task<List<Activity>> GetActivitiesAsync(Expression<Func<Activity, bool>> filter)
+        public async Task<List<Studio>> GetStudiosAsync(Expression<Func<Studio, bool>> filter)
         {
-            return await _context.Activities
+            return await _context.Studios
                 .Where(filter)
                 .ToListAsync();
         }

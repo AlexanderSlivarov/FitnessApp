@@ -1,5 +1,7 @@
 ﻿using API.Infrastructure.RequestDTOs.Shared;
 using API.Infrastructure.RequestDTOs.Users;
+using API.Services;
+using Common;
 using Common.Entities;
 using Common.Enums;
 using Common.Security;
@@ -47,8 +49,8 @@ namespace API.Controllers
                 (string.IsNullOrEmpty(model.Filter.FirstName) || u.FirstName.Contains(model.Filter.FirstName)) &&
                 (string.IsNullOrEmpty(model.Filter.LastName) || u.LastName.Contains(model.Filter.LastName)) &&
                 (string.IsNullOrEmpty(model.Filter.PhoneNumber) || u.PhoneNumber.Contains(model.Filter.PhoneNumber)) &&
-                (!model.Filter.Role.HasValue || u.Role.Equals(model.Filter.Role.Value) &&
-                (!model.Filter.Gender.HasValue || u.Gender.Equals(model.Filter.Gender.Value)));
+                (!model.Filter.Role.HasValue || u.Role.Equals(model.Filter.Role) &&
+                (!model.Filter.Gender.HasValue || u.Gender.Equals(model.Filter.Gender)));
 
             List<User> users = await _userService.GetAllAsync(filter, model.OrderBy, model.SortAsc, model.Pager.Page, model.Pager.PageSize);
 
@@ -76,7 +78,12 @@ namespace API.Controllers
 
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] UserRequest model)
-        {            
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ServiceResultExtentions<List<Error>>.Failure(null, ModelState));
+            }
+
             var (hash, salt) = PasswordHasher.HashPassword(model.Password);
 
             User newUser = new User
@@ -88,7 +95,7 @@ namespace API.Controllers
                 LastName = model.LastName,
                 PhoneNumber = model.PhoneNumber,
                 Gender = model.Gender,
-                Role = model.Role ?? UserRole.Member
+                Role = UserRole.Member
             };
 
             await _userService.SaveAsync(newUser);
@@ -100,6 +107,11 @@ namespace API.Controllers
         [Route("{id}")]
         public async Task<IActionResult> Put([FromRoute] int id, [FromBody] UserRequest model)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ServiceResultExtentions<List<Error>>.Failure(null, ModelState));
+            }
+
             User userForUpdate = await _userService.GetByIdAsync(id);
 
             if (userForUpdate is null)
@@ -111,17 +123,14 @@ namespace API.Controllers
             userForUpdate.FirstName = model.FirstName;
             userForUpdate.LastName = model.LastName;
             userForUpdate.PhoneNumber = model.PhoneNumber;
+            userForUpdate.Gender = model.Gender;
 
             if (!string.IsNullOrEmpty(model.Password))
             {
                 var (hash, salt) = PasswordHasher.HashPassword(model.Password);
                 userForUpdate.PasswordHash = hash;
                 userForUpdate.PasswordSalt = salt;
-            }
-            if (model.Role.HasValue)
-            {
-                userForUpdate.Role = model.Role.Value;
-            }
+            }          
 
             await _userService.SaveAsync(userForUpdate);
 

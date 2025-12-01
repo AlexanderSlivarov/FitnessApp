@@ -3,6 +3,7 @@ using API.Services.Interfaces;
 using Common.Persistance;
 using Common.Services.Implementations;
 using Common.Services.Interfaces;
+using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -47,15 +48,20 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddDbContext<FitnessAppDbContext>(options =>
     options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection")       
+        builder.Configuration.GetConnectionString("DefaultConnection")
     )
     .UseLazyLoadingProxies()
 );
+
 builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+
 builder.Services.AddScoped<IUserServices, UserServices>();
 builder.Services.AddScoped<ITokenServices, TokenServices>();
 builder.Services.AddScoped<IActivityServices, ActivityServices>();
 builder.Services.AddScoped<IInstructorServices, InstructorServices>();
+builder.Services.AddScoped<IStudioServices, StudioServices>();
+builder.Services.AddScoped<ISessionServices, SessionServices>();
 
 var app = builder.Build();
 

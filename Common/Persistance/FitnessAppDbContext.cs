@@ -13,6 +13,7 @@ namespace Common.Persistance
         public DbSet<Activity> Activities { get; set; }
         public DbSet<Session> Sessions { get; set; }
         public DbSet<Instructor> Instructors { get; set; }
+        public DbSet<Studio> Studios { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             #region User
@@ -71,14 +72,33 @@ namespace Common.Persistance
 
             modelBuilder.Entity<Session>(entity =>
             {
-                entity.HasKey(i => i.Id);
+                entity.HasKey(s => s.Id);
 
+                entity.Property(s => s.InstructorId).IsRequired();
+                entity.Property(s => s.StudioId).IsRequired();
                 entity.Property(s => s.ActivityId).IsRequired();
 
-                entity.HasOne(s => s.Activity)
+                entity.Property(s => s.Name).IsRequired();
+                entity.Property(s => s.StartTime).IsRequired();
+                entity.Property(s => s.Duration).IsRequired();
+                entity.Property(s => s.Date).IsRequired();        
+                entity.Property(s => s.MinParticipants).IsRequired();
+                entity.Property(s => s.Difficulty).IsRequired();
+
+                entity.HasOne(s => s.Instructor)
+                       .WithMany(i => i.Sessions)
+                       .HasForeignKey(s => s.InstructorId)
+                       .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(s => s.Studio)
                       .WithMany(s => s.Sessions)
-                      .HasForeignKey(s => s.ActivityId)
+                      .HasForeignKey(s => s.StudioId)
                       .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(s => s.Activity)
+                      .WithMany(a => a.Sessions)
+                      .HasForeignKey(s => s.ActivityId)
+                      .OnDelete(DeleteBehavior.Restrict);    
             });
 
             #endregion
@@ -93,10 +113,25 @@ namespace Common.Persistance
                 entity.Property(i => i.Bio).IsRequired();
                 entity.Property(i => i.ExperienceYears).IsRequired();
 
+                entity.HasIndex(i => i.UserId).IsUnique();
+
                 entity.HasOne(i => i.User)
                       .WithOne()
                       .HasForeignKey<Instructor>(i => i.UserId)
                       .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            #endregion
+
+            #region Studio
+
+            modelBuilder.Entity<Studio>(entity =>
+            {
+                entity.HasKey(s => s.Id);
+
+                entity.Property(s => s.Name).IsRequired();
+                entity.Property(s => s.Location).IsRequired();
+                entity.Property(s => s.Capacity).IsRequired();
             });
 
             #endregion

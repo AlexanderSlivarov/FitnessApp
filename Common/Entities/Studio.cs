@@ -6,13 +6,12 @@ using System.Threading.Tasks;
 
 namespace Common.Entities
 {
-    public class Instructor : BaseEntity
+    public class Studio : BaseEntity
     {
-        public int UserId { get; set; }
-        public string? Bio { get; set; }
-        public int ExperienceYears { get; set; }
+        public string? Name { get; set; }
+        public string? Location { get; set; }
+        public int Capacity { get; set; }
 
-        public virtual User User { get; set; }
         public virtual List<Session> Sessions { get; set; }
     }
 }

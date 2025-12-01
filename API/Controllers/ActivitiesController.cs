@@ -1,6 +1,10 @@
-﻿using API.Infrastructure.RequestDTOs.Activities;
+﻿using API.Infrastructure.Mappers;
+using API.Infrastructure.RequestDTOs.Activities;
 using API.Infrastructure.RequestDTOs.Shared;
 using API.Infrastructure.RequestDTOs.Users;
+using API.Infrastructure.ResponseDTOs.Activity;
+using API.Services;
+using Common;
 using Common.Entities;
 using Common.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -13,11 +17,11 @@ namespace API.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class ActivityController : ControllerBase
+    public class ActivitiesController : ControllerBase
     {
         private readonly IActivityServices _activityService;
 
-        public ActivityController(IActivityServices activityServices)
+        public ActivitiesController(IActivityServices activityServices)
         {
             _activityService = activityServices;
         }
@@ -49,9 +53,9 @@ namespace API.Controllers
             if (activities is null || !activities.Any())
             {
                 return NotFound("No activities found matching the given criteria.");
-            }
+            }            
 
-            return Ok(activities);
+           return Ok(ActivityMapper.ToResponseList(activities));            
         }
 
         [HttpGet]
@@ -63,14 +67,19 @@ namespace API.Controllers
             if (activity is null)
             {
                 return NotFound("Activity not found.");
-            }
+            }           
 
-            return Ok(activity);
+            return Ok(ActivityMapper.ToResponse(activity));
         }
 
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] ActivityRequest model)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ServiceResultExtentions<List<Error>>.Failure(null, ModelState));
+            }
+
             Activity newActivity = new Activity
             {
                 Name = model.Name,
@@ -86,6 +95,11 @@ namespace API.Controllers
         [Route("{id}")]
         public async Task<IActionResult> Put([FromRoute] int id, [FromBody] ActivityRequest model)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ServiceResultExtentions<List<Error>>.Failure(null, ModelState));
+            }
+
             Activity activityForUpdate = await _activityService.GetByIdAsync(id);
 
             if (activityForUpdate is null)
