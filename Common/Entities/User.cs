@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Common.Entities
@@ -19,6 +20,9 @@ namespace Common.Entities
         public UserGender? Gender { get; set; }
         public UserRole Role { get; set; } 
 
-        public DateTime CreatedAt { get; set; }     
+        public DateTime CreatedAt { get; set; }
+
+        [JsonIgnore]
+        public virtual List<Booking> Bookings { get; set; }
     }
 }

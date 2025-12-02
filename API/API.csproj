@@ -22,6 +22,8 @@
     <Folder Include="Infrastructure\ResponseDTOs\Auth\" />
     <Folder Include="Infrastructure\ResponseDTOs\Memberships\" />
     <Folder Include="Infrastructure\ResponseDTOs\Equipments\" />
+    <Folder Include="Infrastructure\ResponseDTOs\Bookings\" />
+    <Folder Include="Infrastructure\ResponseDTOs\Subscriptions\" />
     <Folder Include="Infrastructure\ResponseDTOs\Users\" />
   </ItemGroup>
 

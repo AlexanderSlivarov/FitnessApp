@@ -26,6 +26,9 @@ namespace Common.Entities
 
         public virtual Instructor Instructor { get; set; }        
         public virtual Studio Studio { get; set; }     
-        public virtual Activity Activity { get; set; }       
+        public virtual Activity Activity { get; set; }
+
+        [JsonIgnore]
+        public virtual List<Booking> Bookings { get; set; }
     }
 }

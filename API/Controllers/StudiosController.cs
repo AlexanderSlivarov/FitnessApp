@@ -27,7 +27,7 @@ namespace API.Controllers
         [HttpGet]
         public async Task<IActionResult> Get([FromBody] StudioGetRequest model)
         {
-            model.Pager = model.Pager ?? new PagerRequest();
+            model.Pager ??= new PagerRequest();
             model.Pager.Page = model.Pager.Page <= 0
                                           ? 1
                                           : model.Pager.Page;

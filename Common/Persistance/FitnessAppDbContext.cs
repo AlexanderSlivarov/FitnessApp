@@ -16,6 +16,8 @@ namespace Common.Persistance
         public DbSet<Studio> Studios { get; set; }
         public DbSet<Membership> Memberships { get; set; }
         public DbSet<Equipment> Equipments { get; set; }
+        public DbSet<Booking> Bookings { get; set; }
+        public DbSet<Subscription> Subscriptions { get; set; } 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             #region User
@@ -100,7 +102,7 @@ namespace Common.Persistance
                 entity.HasOne(s => s.Activity)
                       .WithMany()
                       .HasForeignKey(s => s.ActivityId)
-                      .OnDelete(DeleteBehavior.Restrict);    
+                      .OnDelete(DeleteBehavior.Restrict);                
             });
 
             #endregion
@@ -174,6 +176,70 @@ namespace Common.Persistance
                        .WithMany()
                        .HasForeignKey(e => e.StudioId)
                        .OnDelete(DeleteBehavior.Restrict);                     
+            });
+
+            #endregion
+
+            #region Booking 
+
+            modelBuilder.Entity<Booking>(entity =>
+            {
+                entity.HasKey(b => b.Id);
+
+                entity.Property(b => b.UserId).IsRequired();
+                entity.Property(b => b.SessionId).IsRequired();
+
+                entity.Property(b => b.Status)
+                      .HasConversion<string>()
+                      .IsRequired();
+
+                entity.Property(b => b.BookedAt)
+                      .HasDefaultValueSql("GETUTCDATE()");
+
+                entity.HasOne(b => b.User)
+                      .WithMany(u => u.Bookings)
+                      .HasForeignKey(b => b.UserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(b => b.Session)
+                      .WithMany(s => s.Bookings)
+                      .HasForeignKey(b => b.SessionId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasIndex(b => new { b.UserId, b.SessionId })
+                      .IsUnique();
+            });
+
+            #endregion
+
+            #region Subscription
+
+            modelBuilder.Entity<Subscription>(entity =>
+            {
+                entity.HasKey(s => s.Id);
+
+                entity.Property(s => s.UserId).IsRequired();
+                entity.Property(s => s.MembershipId).IsRequired();
+
+                entity.Property(s => s.StartDate).IsRequired();
+                entity.Property(s => s.EndDate).IsRequired();
+
+                entity.Property(s => s.Status)
+                      .HasConversion<string>()
+                      .IsRequired();
+
+                entity.Property(s => s.PurchasedAt)
+                      .HasDefaultValueSql("GETUTCDATE()");
+
+                entity.HasOne(s => s.User)
+                      .WithMany()
+                      .HasForeignKey(s => s.UserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(s => s.Membership)
+                      .WithMany()
+                      .HasForeignKey(s => s.MembershipId)
+                      .OnDelete(DeleteBehavior.Restrict);
             });
 
             #endregion

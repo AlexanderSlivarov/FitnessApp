@@ -64,6 +64,8 @@ builder.Services.AddScoped<IStudioServices, StudioServices>();
 builder.Services.AddScoped<ISessionServices, SessionServices>();
 builder.Services.AddScoped<IMembershipServices, MembershipServices>();
 builder.Services.AddScoped<IEquipmentServices, EquipmentServices>();
+builder.Services.AddScoped<IBookingServices, BookingServices>();
+builder.Services.AddScoped<ISubscriptionServices, SubscriptionServices>();
 
 var app = builder.Build();
 
