@@ -1,5 +1,4 @@
-﻿using API.Infrastructure.Mappers;
-using API.Infrastructure.RequestDTOs.Shared;
+﻿using API.Infrastructure.RequestDTOs.Shared;
 using API.Infrastructure.RequestDTOs.Studios;
 using API.Infrastructure.ResponseDTOs.Studios;
 using API.Services;
@@ -56,7 +55,7 @@ namespace API.Controllers
                 return NotFound("No studios found matching the given criteria.");
             }            
 
-            return Ok(StudioMapper.ToResponseList(studios));
+            return Ok(studios);
         }
 
         [HttpGet]
@@ -70,7 +69,7 @@ namespace API.Controllers
                 return NotFound("Studio not found.");
             }           
 
-            return Ok(StudioMapper.ToResponse(studio));
+            return Ok(studio);
         }
 
         [HttpPost]

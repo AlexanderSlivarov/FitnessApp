@@ -14,6 +14,7 @@ namespace Common.Persistance
         public DbSet<Session> Sessions { get; set; }
         public DbSet<Instructor> Instructors { get; set; }
         public DbSet<Studio> Studios { get; set; }
+        public DbSet<Membership> Memberships { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             #region User
@@ -86,17 +87,17 @@ namespace Common.Persistance
                 entity.Property(s => s.Difficulty).IsRequired();
 
                 entity.HasOne(s => s.Instructor)
-                       .WithMany(i => i.Sessions)
+                       .WithMany()
                        .HasForeignKey(s => s.InstructorId)
                        .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(s => s.Studio)
-                      .WithMany(s => s.Sessions)
+                      .WithMany()
                       .HasForeignKey(s => s.StudioId)
                       .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(s => s.Activity)
-                      .WithMany(a => a.Sessions)
+                      .WithMany()
                       .HasForeignKey(s => s.ActivityId)
                       .OnDelete(DeleteBehavior.Restrict);    
             });
@@ -132,6 +133,24 @@ namespace Common.Persistance
                 entity.Property(s => s.Name).IsRequired();
                 entity.Property(s => s.Location).IsRequired();
                 entity.Property(s => s.Capacity).IsRequired();
+            });
+
+            #endregion
+
+            #region Membership
+
+            modelBuilder.Entity<Membership>(entity =>
+            {
+                entity.HasKey(m => m.Id);
+
+                entity.Property(m => m.Name).IsRequired();
+                entity.Property(m => m.Price).IsRequired();
+                entity.Property(m => m.Duration).IsRequired();
+                entity.Property(m => m.Description).IsRequired();
+
+                entity.Property(m => m.DurationType)
+                      .HasConversion<string>()
+                      .IsRequired();
             });
 
             #endregion

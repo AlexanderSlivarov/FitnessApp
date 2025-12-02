@@ -10,8 +10,6 @@ namespace Common.Entities
     {
         public string? Name { get; set; }
         public string? Location { get; set; }
-        public int Capacity { get; set; }
-
-        public virtual List<Session> Sessions { get; set; }
+        public int Capacity { get; set; }        
     }
 }

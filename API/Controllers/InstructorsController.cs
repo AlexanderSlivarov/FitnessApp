@@ -1,5 +1,4 @@
-﻿using API.Infrastructure.Mappers;
-using API.Infrastructure.RequestDTOs.Instructors;
+﻿using API.Infrastructure.RequestDTOs.Instructors;
 using API.Infrastructure.RequestDTOs.Shared;
 using API.Infrastructure.ResponseDTOs.Instructor;
 using API.Services;
@@ -58,7 +57,7 @@ namespace API.Controllers
                 return NotFound("No instructors found matching the given criteria.");
             }          
 
-            return Ok(InstructorMapper.ToResponseList(instructors));
+            return Ok(instructors);
         }
 
         [HttpGet]
@@ -72,7 +71,7 @@ namespace API.Controllers
                 return NotFound("Instructor not found.");
             }            
 
-            return Ok(InstructorMapper.ToResponse(instructor));
+            return Ok(instructor);
         }
 
         [HttpPost]

@@ -9,7 +9,5 @@ using System.Threading.Tasks;
 namespace Common.Services.Interfaces
 {
     public interface ISessionServices : IBaseService<Session>
-    {
-        Task<List<Session>> GetSessionsAsync(Expression<Func<Session, bool>> filter);
-    }
+    { }
 }

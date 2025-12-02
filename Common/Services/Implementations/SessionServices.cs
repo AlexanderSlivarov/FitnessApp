@@ -13,21 +13,7 @@ namespace Common.Services.Implementations
 {
     public class SessionServices : BaseService<Session>, ISessionServices
     {
-        private readonly FitnessAppDbContext _context;
-        public SessionServices(FitnessAppDbContext context) : base(context) 
-        {
-            _context = context;
-        }
-
-        public async Task<List<Session>> GetSessionsAsync(Expression<Func<Session, bool>> filter)
-        {
-            return await _context.Sessions
-                .Include(s => s.Instructor)
-                    .ThenInclude(i => i.User)
-                .Include(s => s.Activity)
-                .Include(s => s.Studio)
-                .Where(filter)
-                .ToListAsync();
-        }
+        public SessionServices(FitnessAppDbContext context) : base(context)
+        { }
     }
 }

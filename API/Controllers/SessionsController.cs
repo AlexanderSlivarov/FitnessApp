@@ -1,5 +1,4 @@
-﻿using API.Infrastructure.Mappers;
-using API.Infrastructure.RequestDTOs.Sessions;
+﻿using API.Infrastructure.RequestDTOs.Sessions;
 using API.Infrastructure.RequestDTOs.Shared;
 using API.Infrastructure.ResponseDTOs.Sessions;
 using API.Services;
@@ -59,7 +58,7 @@ namespace API.Controllers
                 return NotFound("No sessions found matching the given criteria.");
             }            
 
-            return Ok(SessionMapper.ToResponseList(sessions));
+            return Ok(sessions);
         }
 
         [HttpGet]
@@ -73,7 +72,7 @@ namespace API.Controllers
                 return NotFound("Session not found.");
             }            
 
-            return Ok(SessionMapper.ToResponse(session));
+            return Ok(session);
         }
 
         [HttpPost]

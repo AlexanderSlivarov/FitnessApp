@@ -1,5 +1,4 @@
-﻿using API.Infrastructure.Mappers;
-using API.Infrastructure.RequestDTOs.Activities;
+﻿using API.Infrastructure.RequestDTOs.Activities;
 using API.Infrastructure.RequestDTOs.Shared;
 using API.Infrastructure.RequestDTOs.Users;
 using API.Infrastructure.ResponseDTOs.Activity;
@@ -55,7 +54,7 @@ namespace API.Controllers
                 return NotFound("No activities found matching the given criteria.");
             }            
 
-           return Ok(ActivityMapper.ToResponseList(activities));            
+           return Ok(activities);            
         }
 
         [HttpGet]
@@ -69,7 +68,7 @@ namespace API.Controllers
                 return NotFound("Activity not found.");
             }           
 
-            return Ok(ActivityMapper.ToResponse(activity));
+            return Ok(activity);
         }
 
         [HttpPost]

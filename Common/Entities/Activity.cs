@@ -9,8 +9,6 @@ namespace Common.Entities
     public class Activity : BaseEntity
     {
         public string? Name { get; set; }
-        public string? Description { get; set; }
-
-        public virtual List<Session> Sessions { get; set; }
+        public string? Description { get; set; }      
     }
 }

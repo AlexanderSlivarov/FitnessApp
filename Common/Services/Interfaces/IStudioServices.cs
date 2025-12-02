@@ -8,8 +8,6 @@ using System.Threading.Tasks;
 
 namespace Common.Services.Interfaces
 {
-    public interface IStudioServices : IBaseService<Studio> 
-    {
-        Task<List<Studio>> GetStudiosAsync(Expression<Func<Studio, bool>> filter);
-    }    
+    public interface IStudioServices : IBaseService<Studio>
+    { }   
 }

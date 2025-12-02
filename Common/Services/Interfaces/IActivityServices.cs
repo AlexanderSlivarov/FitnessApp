@@ -9,7 +9,5 @@ using System.Threading.Tasks;
 namespace Common.Services.Interfaces
 {
     public interface IActivityServices : IBaseService<Activity>
-    {
-        Task<List<Activity>> GetActivitiesAsync(Expression<Func<Activity, bool>> filter);
-    }
+    { }   
 }

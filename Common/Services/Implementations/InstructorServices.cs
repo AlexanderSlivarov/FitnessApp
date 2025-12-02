@@ -13,20 +13,7 @@ namespace Common.Services.Implementations
 {
     public class InstructorServices : BaseService<Instructor>, IInstructorServices
     {
-        private readonly FitnessAppDbContext _context;
-
         public InstructorServices(FitnessAppDbContext context) : base(context)
-        {
-            _context = context;
-        }
-
-        public async Task<List<Instructor>> GetInstructorsAsync(Expression<Func<Instructor, bool>> filter)
-        {
-            return await _context.Instructors
-                .Include(i => i.User)           
-                .Include(i => i.Sessions)       
-                .Where(filter)
-                .ToListAsync();
-        }
+        { }
     }
 }

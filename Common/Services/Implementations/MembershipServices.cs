@@ -1,19 +1,17 @@
 ﻿using Common.Entities;
 using Common.Persistance;
 using Common.Services.Interfaces;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Common.Services.Implementations
 {
-    public class StudioServices : BaseService<Studio>, IStudioServices
+    public class MembershipServices : BaseService<Membership>, IMembershipServices
     {
-        public StudioServices(FitnessAppDbContext context) : base(context)
+        public MembershipServices(FitnessAppDbContext context) : base(context)
         { }
     }
 }

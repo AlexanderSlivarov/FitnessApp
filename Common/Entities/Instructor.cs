@@ -12,7 +12,6 @@ namespace Common.Entities
         public string? Bio { get; set; }
         public int ExperienceYears { get; set; }
 
-        public virtual User User { get; set; }
-        public virtual List<Session> Sessions { get; set; }
+        public virtual User User { get; set; }       
     }
 }
