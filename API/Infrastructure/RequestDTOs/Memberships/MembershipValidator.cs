@@ -24,7 +24,7 @@ namespace API.Infrastructure.RequestDTOs.Memberships
 
             RuleFor(i => i.DurationType)
                 .IsInEnum()
-                .WithMessage("DurationType is invalid.");
+                .WithMessage("DurationType value is invalid.");
         }
     }
 }

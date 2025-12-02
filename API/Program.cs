@@ -63,6 +63,7 @@ builder.Services.AddScoped<IInstructorServices, InstructorServices>();
 builder.Services.AddScoped<IStudioServices, StudioServices>();
 builder.Services.AddScoped<ISessionServices, SessionServices>();
 builder.Services.AddScoped<IMembershipServices, MembershipServices>();
+builder.Services.AddScoped<IEquipmentServices, EquipmentServices>();
 
 var app = builder.Build();
 

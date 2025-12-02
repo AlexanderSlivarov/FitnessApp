@@ -21,6 +21,7 @@
   <ItemGroup>
     <Folder Include="Infrastructure\ResponseDTOs\Auth\" />
     <Folder Include="Infrastructure\ResponseDTOs\Memberships\" />
+    <Folder Include="Infrastructure\ResponseDTOs\Equipments\" />
     <Folder Include="Infrastructure\ResponseDTOs\Users\" />
   </ItemGroup>
 

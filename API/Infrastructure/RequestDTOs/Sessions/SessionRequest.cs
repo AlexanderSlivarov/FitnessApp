@@ -17,6 +17,5 @@ namespace API.Infrastructure.RequestDTOs.Sessions
         public int MinParticipants { get; set; }
 
         public SessionDifficulty Difficulty { get; set; }
-
     }
 }

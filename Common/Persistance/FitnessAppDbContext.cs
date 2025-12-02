@@ -15,6 +15,7 @@ namespace Common.Persistance
         public DbSet<Instructor> Instructors { get; set; }
         public DbSet<Studio> Studios { get; set; }
         public DbSet<Membership> Memberships { get; set; }
+        public DbSet<Equipment> Equipments { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             #region User
@@ -151,6 +152,28 @@ namespace Common.Persistance
                 entity.Property(m => m.DurationType)
                       .HasConversion<string>()
                       .IsRequired();
+            });
+
+            #endregion
+
+            #region Equipment
+
+            modelBuilder.Entity<Equipment>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.StudioId).IsRequired();
+                entity.Property(e => e.Name).IsRequired();
+                entity.Property(e => e.Quantity).IsRequired();
+
+                entity.Property(e => e.Condition)
+                      .HasConversion<string>()
+                      .IsRequired();
+
+                entity.HasOne(e => e.Studio)
+                       .WithMany()
+                       .HasForeignKey(e => e.StudioId)
+                       .OnDelete(DeleteBehavior.Restrict);                     
             });
 
             #endregion
