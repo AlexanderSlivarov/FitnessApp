@@ -1,10 +1,14 @@
 ﻿using API.Infrastructure.RequestDTOs.Instructors;
 using API.Infrastructure.RequestDTOs.Shared;
-using API.Infrastructure.ResponseDTOs.Instructor;
+using API.Infrastructure.ResponseDTOs.Equipments;
+using API.Infrastructure.ResponseDTOs.Instructors;
+using API.Infrastructure.ResponseDTOs.Shared;
 using API.Services;
+using Azure;
 using Common;
 using Common.Entities;
 using Common.Enums;
+using Common.Services.Implementations;
 using Common.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -50,14 +54,34 @@ namespace API.Controllers
                 ((!model.Filter.ExperienceYears.HasValue) || i.ExperienceYears.Equals(model.
                 Filter.ExperienceYears));
 
-            List<Instructor> instructors = await _instructorService.GetAllAsync(filter, model.OrderBy, model.SortAsc, model.Pager.Page, model.Pager.PageSize);
+            InstructorGetResponse response = new InstructorGetResponse();
+
+            response.Pager = new PagerResponse();
+            response.Pager.Page = model.Pager.Page;
+            response.Pager.PageSize = model.Pager.PageSize;
+
+            response.OrderBy = model.OrderBy;
+            response.SortAsc = model.SortAsc;
+
+            response.Filter = model.Filter;
+
+            response.Pager.Count = _instructorService.Count(filter);
+
+            List<Instructor> instructors = await _instructorService.GetAllAsync(
+                                                                  filter,
+                                                                  model.OrderBy,
+                                                                  model.SortAsc,
+                                                                  model.Pager.Page,
+                                                                  model.Pager.PageSize);
 
             if (instructors is null || !instructors.Any())
             {
                 return NotFound("No instructors found matching the given criteria.");
-            }          
+            }
 
-            return Ok(instructors);
+            response.Items = instructors;
+
+            return Ok(ServiceResult<InstructorGetResponse>.Success(response));
         }
 
         [HttpGet]
@@ -69,9 +93,9 @@ namespace API.Controllers
             if (instructor is null)
             {
                 return NotFound("Instructor not found.");
-            }            
+            }
 
-            return Ok(instructor);
+            return Ok(ServiceResult<Instructor>.Success(instructor));
         }
 
         [HttpPost]
@@ -99,7 +123,7 @@ namespace API.Controllers
                 await _userService.SaveAsync(user);
             }
 
-            return CreatedAtAction(nameof(Get), new { Id = newInstructor.Id }, newInstructor);
+            return Ok(ServiceResult<Instructor>.Success(newInstructor));
         }
 
         [HttpPut]
@@ -123,7 +147,7 @@ namespace API.Controllers
 
             await _instructorService.SaveAsync(instructorForUpdate);
 
-            return NoContent();
+            return Ok(ServiceResult<Instructor>.Success(instructorForUpdate));
         }
 
         [HttpDelete]
@@ -139,7 +163,7 @@ namespace API.Controllers
 
             await _instructorService.DeleteAsync(instructorForDelete);
 
-            return NoContent();
+            return Ok(ServiceResult<Instructor>.Success(instructorForDelete));
         }
     }
 }

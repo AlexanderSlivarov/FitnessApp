@@ -1,9 +1,13 @@
 ﻿using API.Infrastructure.RequestDTOs.Sessions;
 using API.Infrastructure.RequestDTOs.Shared;
+using API.Infrastructure.ResponseDTOs.Memberships;
 using API.Infrastructure.ResponseDTOs.Sessions;
+using API.Infrastructure.ResponseDTOs.Shared;
 using API.Services;
+using Azure;
 using Common;
 using Common.Entities;
+using Common.Services.Implementations;
 using Common.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -51,14 +55,34 @@ namespace API.Controllers
                 (!model.Filter.Date.HasValue || s.Date.Equals(model.Filter.Date)) &&
                 (!model.Filter.Difficulty.HasValue || s.Difficulty.Equals(model.Filter.Difficulty));
 
-            List<Session> sessions = await _sessionService.GetAllAsync(filter, model.OrderBy, model.SortAsc, model.Pager.Page, model.Pager.PageSize);
+            SessionGetResponse response = new SessionGetResponse();
+
+            response.Pager = new PagerResponse();
+            response.Pager.Page = model.Pager.Page;
+            response.Pager.PageSize = model.Pager.PageSize;
+
+            response.OrderBy = model.OrderBy;
+            response.SortAsc = model.SortAsc;
+
+            response.Filter = model.Filter;
+
+            response.Pager.Count = _sessionService.Count(filter);
+
+            List<Session> sessions = await _sessionService.GetAllAsync(
+                                                                  filter,
+                                                                  model.OrderBy,
+                                                                  model.SortAsc,
+                                                                  model.Pager.Page,
+                                                                  model.Pager.PageSize);
 
             if (sessions is null || !sessions.Any())
             {
                 return NotFound("No sessions found matching the given criteria.");
-            }            
+            }
 
-            return Ok(sessions);
+            response.Items = sessions;
+
+            return Ok(ServiceResult<SessionGetResponse>.Success(response));
         }
 
         [HttpGet]
@@ -70,9 +94,9 @@ namespace API.Controllers
             if (session is null)
             {
                 return NotFound("Session not found.");
-            }            
+            }
 
-            return Ok(session);
+            return Ok(ServiceResult<Session>.Success(session));
         }
 
         [HttpPost]
@@ -98,7 +122,7 @@ namespace API.Controllers
 
             await _sessionService.SaveAsync(newSession);
 
-            return CreatedAtAction(nameof(Get), new { Id = newSession.Id }, newSession);
+            return Ok(ServiceResult<Session>.Success(newSession));
         }
 
         [HttpPut]
@@ -129,7 +153,7 @@ namespace API.Controllers
 
             await _sessionService.SaveAsync(sessionForUpdate);
 
-            return NoContent();
+            return Ok(ServiceResult<Session>.Success(sessionForUpdate));
         }
 
         [HttpDelete]
@@ -145,7 +169,7 @@ namespace API.Controllers
 
             await _sessionService.DeleteAsync(sessionForDelete);
 
-            return NoContent();
+            return Ok(ServiceResult<Session>.Success(sessionForDelete));
         }
     }
 }

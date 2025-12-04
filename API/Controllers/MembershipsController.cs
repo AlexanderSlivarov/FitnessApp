@@ -1,8 +1,13 @@
 ﻿using API.Infrastructure.RequestDTOs.Memberships;
 using API.Infrastructure.RequestDTOs.Shared;
+using API.Infrastructure.ResponseDTOs.Instructors;
+using API.Infrastructure.ResponseDTOs.Memberships;
+using API.Infrastructure.ResponseDTOs.Shared;
 using API.Services;
+using Azure;
 using Common;
 using Common.Entities;
+using Common.Services.Implementations;
 using Common.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -49,14 +54,34 @@ namespace API.Controllers
                 (m.DurationType == model.Filter.DurationType.Value &&
                  m.DurationType == model.Filter.DurationType.Value));
 
-            List<Membership> memberships = await _membershipService.GetAllAsync(filter, model.OrderBy, model.SortAsc, model.Pager.Page, model.Pager.PageSize);
+            MembershipGetResponse response = new MembershipGetResponse();
+
+            response.Pager = new PagerResponse();
+            response.Pager.Page = model.Pager.Page;
+            response.Pager.PageSize = model.Pager.PageSize;
+
+            response.OrderBy = model.OrderBy;
+            response.SortAsc = model.SortAsc;
+
+            response.Filter = model.Filter;
+
+            response.Pager.Count = _membershipService.Count(filter);
+
+            List<Membership> memberships = await _membershipService.GetAllAsync(
+                                                                  filter,
+                                                                  model.OrderBy,
+                                                                  model.SortAsc,
+                                                                  model.Pager.Page,
+                                                                  model.Pager.PageSize);
 
             if (memberships is null || !memberships.Any())
             {
                 return NotFound("No memberships found matching the given criteria.");
             }
 
-            return Ok(memberships);
+            response.Items = memberships;
+
+            return Ok(ServiceResult<MembershipGetResponse>.Success(response));
         }
 
         [HttpGet]
@@ -71,7 +96,7 @@ namespace API.Controllers
                 return NotFound("Membership not found.");
             }
 
-            return Ok(membership);
+            return Ok(ServiceResult<Membership>.Success(membership));
         }
 
         [HttpPost]
@@ -82,7 +107,7 @@ namespace API.Controllers
                 return BadRequest(ServiceResultExtentions<List<Error>>.Failure(null, ModelState));
             }
 
-            Membership membership = new Membership
+            Membership newMembership = new Membership
             {
                 Name = model.Name,
                 Price = model.Price,
@@ -91,9 +116,9 @@ namespace API.Controllers
                 Description = model.Description
             };
 
-            await _membershipService.SaveAsync(membership);
+            await _membershipService.SaveAsync(newMembership);
 
-            return CreatedAtAction(nameof(Get), new { Id = membership.Id }, membership);
+            return Ok(ServiceResult<Membership>.Success(newMembership));
         }
 
         [HttpPut]
@@ -120,7 +145,7 @@ namespace API.Controllers
 
             await _membershipService.SaveAsync(membershipForUpdate);
 
-            return NoContent();
+            return Ok(ServiceResult<Membership>.Success(membershipForUpdate));
         }
 
         [HttpDelete]
@@ -137,7 +162,7 @@ namespace API.Controllers
 
             await _membershipService.DeleteAsync(membershipForDelete);
 
-            return NoContent();
+            return Ok(ServiceResult<Membership>.Success(membershipForDelete));
         }
     }
 }

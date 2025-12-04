@@ -49,6 +49,17 @@ namespace Common.Services.Implementations
 
             return await query.ToListAsync();
         }
+        public int Count(Expression<Func<T, bool>> filter = null)
+        {
+            var query = _items.AsQueryable();
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            return query.Count();
+        }
         public async Task<T> GetByIdAsync(int id)
         {
             return await _items.FirstOrDefaultAsync(u => u.Id == id);
@@ -76,6 +87,6 @@ namespace Common.Services.Implementations
         public virtual IQueryable<T> Query()
         {
             return _items.AsQueryable();
-        }
+        }        
     }
 }

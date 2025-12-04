@@ -1,5 +1,7 @@
 ﻿using API.Infrastructure.RequestDTOs.Shared;
 using API.Infrastructure.RequestDTOs.Users;
+using API.Infrastructure.ResponseDTOs.Shared;
+using API.Infrastructure.ResponseDTOs.Users;
 using API.Services;
 using Common;
 using Common.Entities;
@@ -52,14 +54,34 @@ namespace API.Controllers
                 (!model.Filter.Role.HasValue || u.Role.Equals(model.Filter.Role) &&
                 (!model.Filter.Gender.HasValue || u.Gender.Equals(model.Filter.Gender)));
 
-            List<User> users = await _userService.GetAllAsync(filter, model.OrderBy, model.SortAsc, model.Pager.Page, model.Pager.PageSize);
+            UserGetResponse response = new UserGetResponse();
+
+            response.Pager = new PagerResponse();
+            response.Pager.Page = model.Pager.Page;
+            response.Pager.PageSize = model.Pager.PageSize;
+
+            response.OrderBy = model.OrderBy;
+            response.SortAsc = model.SortAsc;
+
+            response.Filter = model.Filter;
+
+            response.Pager.Count = _userService.Count(filter);
+
+            List<User> users = await _userService.GetAllAsync(
+                                                     filter,
+                                                     model.OrderBy,
+                                                     model.SortAsc,
+                                                     model.Pager.Page,
+                                                     model.Pager.PageSize);
 
             if (users is null || !users.Any())
             {
-                return NotFound("No users found matching the given criteria.");
+                return NotFound("No activities found matching the given criteria.");
             }
 
-            return Ok(users);
+            response.Items = users;            
+
+            return Ok(ServiceResult<UserGetResponse>.Success(response));
         }
 
         [HttpGet]
@@ -73,7 +95,7 @@ namespace API.Controllers
                 return NotFound("User not found.");
             }
 
-            return Ok(user);
+            return Ok(ServiceResult<User>.Success(user));
         }
 
         [HttpPost]
@@ -100,7 +122,7 @@ namespace API.Controllers
 
             await _userService.SaveAsync(newUser);
 
-            return CreatedAtAction(nameof(Get), new { Id = newUser.Id, }, newUser);
+            return Ok(ServiceResult<User>.Success(newUser));
         }
 
         [HttpPut]
@@ -134,7 +156,7 @@ namespace API.Controllers
 
             await _userService.SaveAsync(userForUpdate);
 
-            return NoContent();
+            return Ok(ServiceResult<User>.Success(userForUpdate));
         }
 
         [HttpDelete]
@@ -150,7 +172,7 @@ namespace API.Controllers
 
             await _userService.DeleteAsync(userForDelete);
 
-            return NoContent();
+            return Ok(ServiceResult<User>.Success(userForDelete));
         }
     }
 }

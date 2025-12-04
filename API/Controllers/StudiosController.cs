@@ -1,9 +1,13 @@
 ﻿using API.Infrastructure.RequestDTOs.Shared;
 using API.Infrastructure.RequestDTOs.Studios;
+using API.Infrastructure.ResponseDTOs.Sessions;
+using API.Infrastructure.ResponseDTOs.Shared;
 using API.Infrastructure.ResponseDTOs.Studios;
 using API.Services;
+using Azure;
 using Common;
 using Common.Entities;
+using Common.Services.Implementations;
 using Common.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -48,14 +52,34 @@ namespace API.Controllers
                 (string.IsNullOrEmpty(model.Filter.Location) || s.Location.Contains(model.Filter.Location)) &&
                 (!model.Filter.Capacity.HasValue || s.Capacity.Equals(model.Filter.Capacity));
 
-            List<Studio> studios = await _studioService.GetAllAsync(filter, model.OrderBy, model.SortAsc, model.Pager.Page, model.Pager.PageSize);
+            StudioGetResponse response = new StudioGetResponse();
+
+            response.Pager = new PagerResponse();
+            response.Pager.Page = model.Pager.Page;
+            response.Pager.PageSize = model.Pager.PageSize;
+
+            response.OrderBy = model.OrderBy;
+            response.SortAsc = model.SortAsc;
+
+            response.Filter = model.Filter;
+
+            response.Pager.Count = _studioService.Count(filter);
+
+            List<Studio> studios = await _studioService.GetAllAsync(
+                                                                  filter,
+                                                                  model.OrderBy,
+                                                                  model.SortAsc,
+                                                                  model.Pager.Page,
+                                                                  model.Pager.PageSize);
 
             if (studios is null || !studios.Any())
             {
                 return NotFound("No studios found matching the given criteria.");
-            }            
+            }
 
-            return Ok(studios);
+            response.Items = studios;
+
+            return Ok(ServiceResult<StudioGetResponse>.Success(response));
         }
 
         [HttpGet]
@@ -67,9 +91,9 @@ namespace API.Controllers
             if (studio is null)
             {
                 return NotFound("Studio not found.");
-            }           
+            }
 
-            return Ok(studio);
+            return Ok(ServiceResult<Studio>.Success(studio));
         }
 
         [HttpPost]
@@ -89,7 +113,7 @@ namespace API.Controllers
 
             await _studioService.SaveAsync(newStudio);
 
-            return CreatedAtAction(nameof(Get), new { Id = newStudio.Id }, newStudio);
+            return Ok(ServiceResult<Studio>.Success(newStudio));
         }
 
         [HttpPut]
@@ -114,7 +138,7 @@ namespace API.Controllers
 
             await _studioService.SaveAsync(studioForUpdate);
 
-            return NoContent();
+            return Ok(ServiceResult<Studio>.Success(studioForUpdate));
         }
 
         [HttpDelete]
@@ -130,7 +154,7 @@ namespace API.Controllers
 
             await _studioService.DeleteAsync(studioForDelete);
 
-            return NoContent();
+            return Ok(ServiceResult<Studio>.Success(studioForDelete));
         }
     }
 }

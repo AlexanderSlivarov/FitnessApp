@@ -11,6 +11,8 @@ namespace Common.Services.Interfaces
     public interface IBaseService<T> where T : BaseEntity
     {
         Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, string? orderBy = null, bool sortAsc = false, int page = 1, int pageSize = int.MaxValue);
+
+        int Count(Expression<Func<T, bool>> filter);
         Task<T> GetByIdAsync(int id);
         Task SaveAsync(T item);
         Task DeleteAsync(T item);

@@ -1,7 +1,8 @@
 ﻿using API.Infrastructure.RequestDTOs.Activities;
 using API.Infrastructure.RequestDTOs.Shared;
 using API.Infrastructure.RequestDTOs.Users;
-using API.Infrastructure.ResponseDTOs.Activity;
+using API.Infrastructure.ResponseDTOs.Activities;
+using API.Infrastructure.ResponseDTOs.Shared;
 using API.Services;
 using Common;
 using Common.Entities;
@@ -9,6 +10,7 @@ using Common.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+
 using System.Linq.Expressions;
 
 namespace API.Controllers
@@ -47,14 +49,34 @@ namespace API.Controllers
             a =>
                 (string.IsNullOrEmpty(model.Filter.Name) || a.Name.Contains(model.Filter.Name));
 
-            List<Activity> activities = await _activityService.GetAllAsync(filter, model.OrderBy, model.SortAsc, model.Pager.Page, model.Pager.PageSize);
+            ActivityGetResponse response = new ActivityGetResponse();
+
+            response.Pager = new PagerResponse();
+            response.Pager.Page = model.Pager.Page;
+            response.Pager.PageSize = model.Pager.PageSize;
+
+            response.OrderBy = model.OrderBy;
+            response.SortAsc = model.SortAsc;
+
+            response.Filter = model.Filter;
+
+            response.Pager.Count = _activityService.Count(filter);
+
+            List<Activity> activities = await _activityService.GetAllAsync(
+                                                                  filter, 
+                                                                  model.OrderBy, 
+                                                                  model.SortAsc, 
+                                                                  model.Pager.Page, 
+                                                                  model.Pager.PageSize);
 
             if (activities is null || !activities.Any())
             {
                 return NotFound("No activities found matching the given criteria.");
-            }            
+            }
 
-           return Ok(activities);            
+            response.Items = activities;
+
+            return Ok(ServiceResult<ActivityGetResponse>.Success(response));            
         }
 
         [HttpGet]
@@ -68,7 +90,7 @@ namespace API.Controllers
                 return NotFound("Activity not found.");
             }           
 
-            return Ok(activity);
+            return Ok(ServiceResult<Activity>.Success(activity));
         }
 
         [HttpPost]
@@ -87,7 +109,7 @@ namespace API.Controllers
 
             await _activityService.SaveAsync(newActivity);
 
-            return CreatedAtAction(nameof(Get), new { Id = newActivity.Id }, newActivity);
+            return Ok(ServiceResult<Activity>.Success(newActivity));
         }
 
         [HttpPut]
@@ -111,12 +133,11 @@ namespace API.Controllers
 
             await _activityService.SaveAsync(activityForUpdate);
 
-            return NoContent();
+            return Ok(ServiceResult<Activity>.Success(activityForUpdate));
         }
 
         [HttpDelete]
         [Route("{id}")]
-
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             Activity activityForDelete = await _activityService.GetByIdAsync(id);
@@ -128,7 +149,7 @@ namespace API.Controllers
 
             await _activityService.DeleteAsync(activityForDelete);
 
-            return NoContent();
+            return Ok(ServiceResult<Activity>.Success(activityForDelete));
         }
     }
 }

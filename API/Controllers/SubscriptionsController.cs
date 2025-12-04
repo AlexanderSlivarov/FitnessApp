@@ -1,8 +1,13 @@
 ﻿using API.Infrastructure.RequestDTOs.Shared;
 using API.Infrastructure.RequestDTOs.Subscriptions;
+using API.Infrastructure.ResponseDTOs.Shared;
+using API.Infrastructure.ResponseDTOs.Studios;
+using API.Infrastructure.ResponseDTOs.Subscriptions;
 using API.Services;
+using Azure;
 using Common;
 using Common.Entities;
+using Common.Services.Implementations;
 using Common.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -47,15 +52,34 @@ namespace API.Controllers
                 (!model.Filter.MembershipId.HasValue || s.MembershipId.Equals(model.Filter.MembershipId)) &&              
                 (!model.Filter.Status.HasValue || s.Status.Equals(model.Filter.Status));
 
-            List<Subscription> subscriptions = await _subscriptionService
-                .GetAllAsync(filter, model.OrderBy, model.SortAsc, model.Pager.Page, model.Pager.PageSize);
+            SubscriptionGetResponse response = new SubscriptionGetResponse();
+
+            response.Pager = new PagerResponse();
+            response.Pager.Page = model.Pager.Page;
+            response.Pager.PageSize = model.Pager.PageSize;
+
+            response.OrderBy = model.OrderBy;
+            response.SortAsc = model.SortAsc;
+
+            response.Filter = model.Filter;
+
+            response.Pager.Count = _subscriptionService.Count(filter);
+
+            List<Subscription> subscriptions = await _subscriptionService.GetAllAsync(
+                                                                  filter,
+                                                                  model.OrderBy,
+                                                                  model.SortAsc,
+                                                                  model.Pager.Page,
+                                                                  model.Pager.PageSize);
 
             if (subscriptions is null || !subscriptions.Any())
             {
                 return NotFound("No subscriptions found matching the given criteria.");
-            }                
+            }
 
-            return Ok(subscriptions);
+            response.Items = subscriptions;
+
+            return Ok(ServiceResult<SubscriptionGetResponse>.Success(response));
         }
 
         [HttpGet]
@@ -67,9 +91,9 @@ namespace API.Controllers
             if (subscription is null)
             {
                 return NotFound("Subscription not found.");
-            }                
+            }
 
-            return Ok(subscription);
+            return Ok(ServiceResult<Subscription>.Success(subscription));
         }
 
         [HttpPost]
@@ -80,7 +104,7 @@ namespace API.Controllers
                 return BadRequest(ServiceResultExtentions<List<Error>>.Failure(null, ModelState));
             }               
 
-            Subscription subscription = new Subscription
+            Subscription newSubcsription = new Subscription
             {
                 UserId = model.UserId,
                 MembershipId = model.MembershipId,
@@ -89,9 +113,9 @@ namespace API.Controllers
                 Status = model.Status,                
             };
 
-            await _subscriptionService.SaveAsync(subscription);
+            await _subscriptionService.SaveAsync(newSubcsription);
 
-            return CreatedAtAction(nameof(Get), new { Id = subscription.Id }, subscription);
+            return Ok(ServiceResult<Subscription>.Success(newSubcsription));
         }
 
         [HttpPut]
@@ -103,38 +127,38 @@ namespace API.Controllers
                 return BadRequest(ServiceResultExtentions<List<Error>>.Failure(null, ModelState));
             }             
 
-            Subscription subscription = await _subscriptionService.GetByIdAsync(id);
+            Subscription subscriptionForUpdate = await _subscriptionService.GetByIdAsync(id);
 
-            if (subscription is null)
+            if (subscriptionForUpdate is null)
             {
                 return NotFound("Subscription not found.");
             }                
 
-            subscription.UserId = model.UserId;
-            subscription.MembershipId = model.MembershipId;
-            subscription.StartDate = model.StartDate;
-            subscription.EndDate = model.EndDate;
-            subscription.Status = model.Status;
+            subscriptionForUpdate.UserId = model.UserId;
+            subscriptionForUpdate.MembershipId = model.MembershipId;
+            subscriptionForUpdate.StartDate = model.StartDate;
+            subscriptionForUpdate.EndDate = model.EndDate;
+            subscriptionForUpdate.Status = model.Status;
 
-            await _subscriptionService.SaveAsync(subscription);
+            await _subscriptionService.SaveAsync(subscriptionForUpdate);
 
-            return NoContent();
+            return Ok(ServiceResult<Subscription>.Success(subscriptionForUpdate));
         }
 
         [HttpDelete]
         [Route("{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            Subscription subscription = await _subscriptionService.GetByIdAsync(id);
+            Subscription subscriptionForDelete = await _subscriptionService.GetByIdAsync(id);
 
-            if (subscription is null)
+            if (subscriptionForDelete is null)
             {
                 return NotFound("Subscription not found.");
             }               
 
-            await _subscriptionService.DeleteAsync(subscription);
+            await _subscriptionService.DeleteAsync(subscriptionForDelete);
 
-            return NoContent();
+            return Ok(ServiceResult<Subscription>.Success(subscriptionForDelete));
         }
     }
 }

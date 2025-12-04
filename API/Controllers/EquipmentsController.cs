@@ -1,8 +1,13 @@
 ﻿using API.Infrastructure.RequestDTOs.Equipments;
 using API.Infrastructure.RequestDTOs.Shared;
+using API.Infrastructure.ResponseDTOs.Activities;
+using API.Infrastructure.ResponseDTOs.Equipments;
+using API.Infrastructure.ResponseDTOs.Shared;
 using API.Services;
+using Azure;
 using Common;
 using Common.Entities;
+using Common.Services.Implementations;
 using Common.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -46,14 +51,34 @@ namespace API.Controllers
                 (!model.Filter.Condition.HasValue || e.Condition.Equals(model.Filter.Condition)) &&
                 (!model.Filter.StudioId.HasValue || e.StudioId.Equals(model.Filter.StudioId));
 
-            List<Equipment> equipments = await _equipmentService.GetAllAsync(filter, model.OrderBy, model.SortAsc, model.Pager.Page, model.Pager.PageSize);
+            EquipmentGetResponse response = new EquipmentGetResponse();
+
+            response.Pager = new PagerResponse();
+            response.Pager.Page = model.Pager.Page;
+            response.Pager.PageSize = model.Pager.PageSize;
+
+            response.OrderBy = model.OrderBy;
+            response.SortAsc = model.SortAsc;
+
+            response.Filter = model.Filter;
+
+            response.Pager.Count = _equipmentService.Count(filter);
+
+            List<Equipment> equipments = await _equipmentService.GetAllAsync(
+                                                                  filter,
+                                                                  model.OrderBy,
+                                                                  model.SortAsc,
+                                                                  model.Pager.Page,
+                                                                  model.Pager.PageSize);
 
             if (equipments is null || !equipments.Any())
             {
                 return NotFound("No equipments found matching the given criteria.");
             }
 
-            return Ok(equipments);
+            response.Items = equipments;
+
+            return Ok(ServiceResult<EquipmentGetResponse>.Success(response));
         }
 
         [HttpGet]
@@ -67,7 +92,7 @@ namespace API.Controllers
                 return NotFound("Equipment not found.");
             }
 
-            return Ok(equipment);
+            return Ok(ServiceResult<Equipment>.Success(equipment));
         }
 
         [HttpPost]
@@ -78,7 +103,7 @@ namespace API.Controllers
                 return BadRequest(ServiceResultExtentions<List<Error>>.Failure(null, ModelState));
             }
 
-            Equipment equipment = new Equipment
+            Equipment newEquipment = new Equipment
             {
                 StudioId = model.StudioId,
                 Name = model.Name,
@@ -86,9 +111,9 @@ namespace API.Controllers
                 Condition = model.Condition
             };
 
-            await _equipmentService.SaveAsync(equipment);
+            await _equipmentService.SaveAsync(newEquipment);
 
-            return CreatedAtAction(nameof(Get), new { Id = equipment.Id }, equipment);
+            return Ok(ServiceResult<Equipment>.Success(newEquipment));
         }
 
         [HttpPut]
@@ -114,7 +139,7 @@ namespace API.Controllers
 
             await _equipmentService.SaveAsync(equipmentForUpdate);
 
-            return NoContent();
+            return Ok(ServiceResult<Equipment>.Success(equipmentForUpdate));
         }
 
         [HttpDelete]
@@ -130,7 +155,7 @@ namespace API.Controllers
 
             await _equipmentService.DeleteAsync(equipmentForDelete);
 
-            return NoContent();
+            return Ok(ServiceResult<Equipment>.Success(equipmentForDelete));
         }
     }
 }
