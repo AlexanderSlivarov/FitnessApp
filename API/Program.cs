@@ -37,9 +37,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend", builder =>
+    options.AddPolicy("AllowFrontend", policy =>
     {
-        builder
+        policy
             .AllowAnyOrigin()
             .AllowAnyHeader()
             .AllowAnyMethod();

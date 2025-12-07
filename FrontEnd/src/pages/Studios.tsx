@@ -1,0 +1,1 @@
+export default function Studios(){ return <div className="card shadow"><div className="card-body">Studios</div></div> }

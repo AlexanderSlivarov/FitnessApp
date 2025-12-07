@@ -1,0 +1,1 @@
+export default function Activities(){ return <div className="card shadow"><div className="card-body">Activities</div></div> }

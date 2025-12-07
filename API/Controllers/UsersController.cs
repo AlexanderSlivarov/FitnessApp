@@ -12,6 +12,7 @@ using Common.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using FluentValidation.AspNetCore;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
@@ -29,7 +30,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get([FromBody] UserGetRequest model)
+        public async Task<IActionResult> Get([FromQuery] UserGetRequest model)
         {
             model.Pager ??= new PagerRequest();
             model.Pager.Page = model.Pager.Page <= 0
@@ -47,12 +48,12 @@ namespace API.Controllers
 
             Expression<Func<User, bool>> filter =
             u =>
-                (string.IsNullOrEmpty(model.Filter.Username) || u.Username.Contains(model.Filter.Username)) &&
-                (string.IsNullOrEmpty(model.Filter.FirstName) || u.FirstName.Contains(model.Filter.FirstName)) &&
-                (string.IsNullOrEmpty(model.Filter.LastName) || u.LastName.Contains(model.Filter.LastName)) &&
-                (string.IsNullOrEmpty(model.Filter.PhoneNumber) || u.PhoneNumber.Contains(model.Filter.PhoneNumber)) &&
-                (!model.Filter.Role.HasValue || u.Role.Equals(model.Filter.Role) &&
-                (!model.Filter.Gender.HasValue || u.Gender.Equals(model.Filter.Gender)));
+                (string.IsNullOrEmpty(model.Filter.Username) || (u.Username != null && u.Username.Contains(model.Filter.Username))) &&
+                (string.IsNullOrEmpty(model.Filter.FirstName) || (u.FirstName != null && u.FirstName.Contains(model.Filter.FirstName))) &&
+                (string.IsNullOrEmpty(model.Filter.LastName) || (u.LastName != null && u.LastName.Contains(model.Filter.LastName))) &&
+                (string.IsNullOrEmpty(model.Filter.PhoneNumber) || (u.PhoneNumber != null && u.PhoneNumber.Contains(model.Filter.PhoneNumber))) &&
+                (!model.Filter.Role.HasValue || u.Role.Equals(model.Filter.Role)) &&
+                (!model.Filter.Gender.HasValue || (u.Gender.HasValue && u.Gender.Value.Equals(model.Filter.Gender.Value)));
 
             UserGetResponse response = new UserGetResponse();
 
@@ -99,7 +100,7 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] UserRequest model)
+        public async Task<IActionResult> Post([FromBody][CustomizeValidator(RuleSet = "Create")] UserRequest model)
         {
             if (!ModelState.IsValid)
             {
@@ -127,7 +128,7 @@ namespace API.Controllers
 
         [HttpPut]
         [Route("{id}")]
-        public async Task<IActionResult> Put([FromRoute] int id, [FromBody] UserRequest model)
+        public async Task<IActionResult> Put([FromRoute] int id, [FromBody][CustomizeValidator(RuleSet = "Update")] UserRequest model)
         {
             if (!ModelState.IsValid)
             {
