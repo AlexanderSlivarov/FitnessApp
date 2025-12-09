@@ -76,12 +76,20 @@ export default function Sidebar() {
           <button className="btn btn-sm btn-danger m-3" onClick={logout}>Logout</button>
         </>
       ) : (
-        <li className="nav-item">
-          <NavLink className={({isActive}) => `nav-link ${isActive ? 'active' : ''}`} to="/login">
-            <i className="fas fa-sign-in-alt"></i>
-            <span>Login</span>
-          </NavLink>
-        </li>
+        <>
+          <li className="nav-item">
+            <NavLink className={({isActive}) => `nav-link ${isActive ? 'active' : ''}`} to="/register">
+              <i className="fas fa-user-plus"></i>
+              <span>Register</span>
+            </NavLink>
+          </li>
+          <li className="nav-item">
+            <NavLink className={({isActive}) => `nav-link ${isActive ? 'active' : ''}`} to="/login">
+              <i className="fas fa-sign-in-alt"></i>
+              <span>Login</span>
+            </NavLink>
+          </li>
+        </>
       )}
     </ul>
   )

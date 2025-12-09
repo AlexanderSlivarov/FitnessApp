@@ -15,7 +15,9 @@ namespace API.Infrastructure.RequestDTOs.Studios
                 .MinimumLength(4).WithMessage("Location must be atleast 4 characters long.");
 
             RuleFor(i => i.Capacity)
-                .NotEmpty().WithMessage("Capacity is required.");
+                .NotEmpty().WithMessage("Capacity is required.")
+                .LessThan(1000).WithMessage("Capacity must be less than 1000 people.")
+                .GreaterThanOrEqualTo(1).WithMessage("Capacity must be atleast 1 person.");
         }
     }
 }

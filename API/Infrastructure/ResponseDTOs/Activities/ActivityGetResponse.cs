@@ -4,6 +4,6 @@ using Common.Entities;
 
 namespace API.Infrastructure.ResponseDTOs.Activities
 {
-    public class ActivityGetResponse : BaseGetResponse<Activity, ActivityGetFilterRequest>
+    public class ActivityGetResponse : BaseGetResponse<ActivityResponse, ActivityGetFilterRequest>
     { }
 }

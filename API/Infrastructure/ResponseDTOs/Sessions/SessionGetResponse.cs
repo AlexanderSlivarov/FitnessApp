@@ -4,6 +4,6 @@ using Common.Entities;
 
 namespace API.Infrastructure.ResponseDTOs.Sessions
 {
-    public class SessionGetResponse : BaseGetResponse<Session, SessionGetFilterRequest>
+    public class SessionGetResponse : BaseGetResponse<SessionResponse, SessionGetFilterRequest>
     { }
 }

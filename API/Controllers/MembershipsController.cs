@@ -29,7 +29,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get([FromBody] MembershipGetRequest model)
+        public async Task<IActionResult> Get([FromQuery] MembershipGetRequest model)
         {
             model.Pager ??= new PagerRequest();
             model.Pager.Page = model.Pager.Page <= 0
@@ -79,7 +79,17 @@ namespace API.Controllers
                 return NotFound("No memberships found matching the given criteria.");
             }
 
-            response.Items = memberships;
+            response.Items = memberships
+                .Select(m => new MembershipResponse
+                {
+                    Id = m.Id,
+                    Name = m.Name,
+                    Price = m.Price,
+                    Duration = m.Duration,
+                    DurationType = m.DurationType,
+                    Description = m.Description
+                })
+                .ToList();
 
             return Ok(ServiceResult<MembershipGetResponse>.Success(response));
         }

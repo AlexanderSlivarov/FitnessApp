@@ -28,13 +28,13 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get([FromBody] ActivityGetRequest model)
+        public async Task<IActionResult> Get([FromQuery] ActivityGetRequest model)
         {
             model.Pager ??= new PagerRequest();
             model.Pager.Page = model.Pager.Page <= 0
                                     ? 1
                                     : model.Pager.Page;
-            model.Pager.PageSize = model.Pager.Page <= 0
+            model.Pager.PageSize = model.Pager.PageSize <= 0
                                         ? 10
                                         : model.Pager.PageSize;
 
@@ -74,7 +74,14 @@ namespace API.Controllers
                 return NotFound("No activities found matching the given criteria.");
             }
 
-            response.Items = activities;
+            response.Items = activities
+                .Select(a => new ActivityResponse
+                {
+                    Id = a.Id,
+                    Name = a.Name,
+                    Description = a.Description
+                })
+                .ToList();
 
             return Ok(ServiceResult<ActivityGetResponse>.Success(response));            
         }
@@ -147,7 +154,22 @@ namespace API.Controllers
                 return NotFound("Activity not found.");
             }
 
-            await _activityService.DeleteAsync(activityForDelete);
+            try
+            {
+                await _activityService.DeleteAsync(activityForDelete);
+            }
+            catch (Microsoft.EntityFrameworkCore.DbUpdateException ex)
+            {
+                return Conflict(ServiceResultExtentions<List<Error>>.Failure(
+                    new List<Error>
+                    {
+                        new Error
+                        {
+                            Key = nameof(Activity),
+                            Messages = new List<string>{ "Cannot delete activity because sessions depend on it." }
+                        }
+                    }, ModelState));
+            }
 
             return Ok(ServiceResult<Activity>.Success(activityForDelete));
         }

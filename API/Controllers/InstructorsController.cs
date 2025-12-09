@@ -32,7 +32,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get([FromBody] InstructorGetRequest model)
+        public async Task<IActionResult> Get([FromQuery] InstructorGetRequest model)
         {
             model.Pager ??= new PagerRequest();
             model.Pager.Page = model.Pager.Page <= 0
@@ -47,7 +47,7 @@ namespace API.Controllers
                                 ? model.OrderBy
                                 : "Id";
 
-            model.Filter = new InstructorGetFilterRequest();
+            model.Filter ??= new InstructorGetFilterRequest();
 
             Expression<Func<Instructor, bool>> filter =
             i =>
@@ -79,7 +79,17 @@ namespace API.Controllers
                 return NotFound("No instructors found matching the given criteria.");
             }
 
-            response.Items = instructors;
+            response.Items = instructors
+                .Select(i => new InstructorResponse
+                {
+                    Id = i.Id,
+                    UserId = i.UserId,
+                    Username = i.User?.Username,
+                    FullName = $"{i.User?.FirstName} {i.User?.LastName}",
+                    Bio = i.Bio,
+                    ExperienceYears = i.ExperienceYears
+                })
+                .ToList();
 
             return Ok(ServiceResult<InstructorGetResponse>.Success(response));
         }

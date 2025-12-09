@@ -29,7 +29,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get([FromBody] StudioGetRequest model)
+        public async Task<IActionResult> Get([FromQuery] StudioGetRequest model)
         {
             model.Pager ??= new PagerRequest();
             model.Pager.Page = model.Pager.Page <= 0
@@ -77,7 +77,15 @@ namespace API.Controllers
                 return NotFound("No studios found matching the given criteria.");
             }
 
-            response.Items = studios;
+            response.Items = studios
+                .Select(s => new StudioResponse
+                {
+                    Id = s.Id,
+                    Name = s.Name,
+                    Location = s.Location,
+                    Capacity = s.Capacity
+                })
+                .ToList();
 
             return Ok(ServiceResult<StudioGetResponse>.Success(response));
         }

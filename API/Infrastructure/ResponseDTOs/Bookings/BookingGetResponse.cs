@@ -4,6 +4,6 @@ using Common.Entities;
 
 namespace API.Infrastructure.ResponseDTOs.Bookings
 {
-    public class BookingGetResponse : BaseGetResponse<Booking, BookingGetFilterRequest>
+    public class BookingGetResponse : BaseGetResponse<BookingResponse, BookingGetFilterRequest>
     { }
 }

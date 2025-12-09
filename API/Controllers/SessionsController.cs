@@ -29,7 +29,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get([FromBody] SessionGetRequest model)
+        public async Task<IActionResult> Get([FromQuery] SessionGetRequest model)
         {
             model.Pager ??= new PagerRequest();
             model.Pager.Page = model.Pager.Page <= 0
@@ -52,8 +52,7 @@ namespace API.Controllers
                 (!model.Filter.StudioId.HasValue || s.StudioId.Equals(model.Filter.StudioId)) &&
                 (!model.Filter.ActivityId.HasValue || s.ActivityId.Equals(model.Filter.ActivityId)) &&
                 (string.IsNullOrEmpty(model.Filter.Name) || s.Name.Contains(model.Filter.Name)) &&
-                (!model.Filter.Date.HasValue || s.Date.Equals(model.Filter.Date)) &&
-                (!model.Filter.Difficulty.HasValue || s.Difficulty.Equals(model.Filter.Difficulty));
+                (!model.Filter.Date.HasValue || s.Date.Equals(model.Filter.Date));                
 
             SessionGetResponse response = new SessionGetResponse();
 
@@ -80,7 +79,24 @@ namespace API.Controllers
                 return NotFound("No sessions found matching the given criteria.");
             }
 
-            response.Items = sessions;
+            response.Items = sessions
+                .Select(s => new SessionResponse
+                {
+                    Id = s.Id,
+                    InstructorId = s.InstructorId,
+                    StudioId = s.StudioId,
+                    ActivityId = s.ActivityId,
+                    InstructorName = s.Instructor.User.FirstName + " " + s.Instructor.User.LastName,
+                    StudioName = s.Studio.Name,
+                    ActivityName = s.Activity.Name,
+                    Name = s.Name,
+                    StartTime = s.StartTime,
+                    Duration = s.Duration,
+                    Date = s.Date,
+                    MinParticipants = s.MinParticipants,
+                    Difficulty = s.Difficulty
+                })
+                .ToList();
 
             return Ok(ServiceResult<SessionGetResponse>.Success(response));
         }

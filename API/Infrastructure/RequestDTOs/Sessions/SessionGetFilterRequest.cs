@@ -10,8 +10,6 @@ namespace API.Infrastructure.RequestDTOs.Sessions
 
         public string? Name { get; set; }
 
-        public DateOnly? Date { get; set; }
-
-        public SessionDifficulty? Difficulty { get; set; }
+        public DateOnly? Date { get; set; }       
     }
 }

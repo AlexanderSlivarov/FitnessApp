@@ -4,6 +4,6 @@ using Common.Entities;
 
 namespace API.Infrastructure.ResponseDTOs.Memberships
 {
-    public class MembershipGetResponse : BaseGetResponse<Membership, MembershipGetFilterRequest>
+    public class MembershipGetResponse : BaseGetResponse<MembershipResponse, MembershipGetFilterRequest>
     { }
 }

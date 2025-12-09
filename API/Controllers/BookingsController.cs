@@ -25,7 +25,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get([FromBody] BookingGetRequest model)
+        public async Task<IActionResult> Get([FromQuery] BookingGetRequest model)
         {
             model.Pager ??= new PagerRequest();
             model.Pager.Page = model.Pager.Page <= 0 
@@ -71,7 +71,20 @@ namespace API.Controllers
                 return NotFound("No bookings found matching the given criteria.");
             }
 
-            response.Items = bookings;
+            response.Items = bookings
+                .Select(b => new BookingResponse
+                {
+                    Id = b.Id,
+                    UserId = b.UserId,
+                    SessionId = b.SessionId,
+                    Username = b.User?.Username,
+                    UserFullName = $"{b.User?.FirstName} {b.User?.LastName}",
+                    SessionName = b.Session?.Name,
+                    ActivityName = b.Session?.Activity?.Name,
+                    StudioName = b.Session?.Studio?.Name,
+                    Status = b.Status
+                })
+                .ToList();
 
             return Ok(ServiceResult<BookingGetResponse>.Success(response));
         }

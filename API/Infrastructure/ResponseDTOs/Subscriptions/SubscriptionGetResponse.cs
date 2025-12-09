@@ -4,6 +4,6 @@ using Common.Entities;
 
 namespace API.Infrastructure.ResponseDTOs.Subscriptions
 {
-    public class SubscriptionGetResponse : BaseGetResponse<Subscription, SubscriptionGetFilterRequest>
+    public class SubscriptionGetResponse : BaseGetResponse<SubscriptionResponse, SubscriptionGetFilterRequest>
     { }
 }

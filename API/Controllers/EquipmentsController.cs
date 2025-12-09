@@ -28,7 +28,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get([FromBody] EquipmentGetRequest model)
+        public async Task<IActionResult> Get([FromQuery] EquipmentGetRequest model)
         {
             model.Pager ??= new PagerRequest();
             model.Pager.Page = model.Pager.Page <= 0
@@ -76,7 +76,17 @@ namespace API.Controllers
                 return NotFound("No equipments found matching the given criteria.");
             }
 
-            response.Items = equipments;
+            response.Items = equipments
+                .Select(e => new EquipmentResponse
+                {
+                    Id = e.Id,
+                    Name = e.Name,
+                    Quantity = e.Quantity,
+                    Condition = e.Condition,
+                    StudioId = e.StudioId,
+                    StudioName = e.Studio.Name
+                })
+                .ToList();
 
             return Ok(ServiceResult<EquipmentGetResponse>.Success(response));
         }

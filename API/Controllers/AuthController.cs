@@ -3,6 +3,7 @@ using API.Services;
 using API.Services.Interfaces;
 using Common;
 using Common.Entities;
+using Common.Enums;
 using Common.Security;
 using Common.Services.Implementations;
 using Common.Services.Interfaces;
@@ -26,6 +27,48 @@ namespace API.Controllers
             _userService = userService;
             _tokenService = tokenService;
         }
+
+        [HttpPost]
+        [Route("register")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Register([FromForm] RegisterUserRequest model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ServiceResultExtentions<List<Error>>.Failure(null, ModelState));
+            }
+            
+            var existingUser = await _userService.GetByUsernameAsync(model.Username);
+            if (existingUser != null)
+            {
+                ModelState.AddModelError("Global", "Username already exists.");
+                return BadRequest(ServiceResultExtentions<List<Error>>.Failure(null, ModelState));
+            }
+            
+            var (hash, salt) = PasswordHasher.HashPassword(model.Password);
+
+            var user = new User
+            {
+                Username = model.Username,
+                PasswordHash = hash,
+                PasswordSalt = salt,
+
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+                PhoneNumber = model.PhoneNumber,
+                Gender = model.Gender,
+
+                Role = UserRole.Member,              
+            };
+
+            await _userService.SaveAsync(user);
+
+            return Ok(new
+            {
+                message = "User registered successfully."
+            });
+        }
+
 
         [HttpPost]
         [Route("login")]

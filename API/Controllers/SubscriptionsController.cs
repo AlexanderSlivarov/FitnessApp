@@ -29,7 +29,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get([FromBody] SubscriptionGetRequest model)
+        public async Task<IActionResult> Get([FromQuery] SubscriptionGetRequest model)
         {
             model.Pager ??= new PagerRequest();
             model.Pager.Page = model.Pager.Page <= 0 
@@ -77,7 +77,19 @@ namespace API.Controllers
                 return NotFound("No subscriptions found matching the given criteria.");
             }
 
-            response.Items = subscriptions;
+            response.Items = subscriptions
+                .Select(s => new SubscriptionResponse
+                {
+                    Id = s.Id,
+                    UserId = s.UserId,
+                    MembershipId = s.MembershipId,
+                    Username = s.User.Username,                     
+                    MembershipName = s.Membership.Name, 
+                    StartDate = s.StartDate,
+                    EndDate = s.EndDate,
+                    Status = s.Status
+                })
+                .ToList();
 
             return Ok(ServiceResult<SubscriptionGetResponse>.Success(response));
         }

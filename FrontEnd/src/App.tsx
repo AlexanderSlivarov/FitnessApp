@@ -1,6 +1,8 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Sidebar from './components/Sidebar'
 import LoginPage from './pages/LoginPage'
+import RegisterPage from './pages/RegisterPage'
+import Terms from './pages/Terms'
 import { useAuth } from './auth/AuthContext'
 import Activities from './pages/Activities'
 import Sessions from './pages/Sessions'
@@ -26,7 +28,9 @@ export default function App() {
         <div id="content" className="container-fluid py-3">
           <Routes>
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/" element={<Protected><Activities /></Protected>} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/" element={<Protected><Users /></Protected>} />
             <Route path="/activities" element={<Protected><Activities /></Protected>} />
             <Route path="/sessions" element={<Protected><Sessions /></Protected>} />
             <Route path="/instructors" element={<Protected><Instructors /></Protected>} />

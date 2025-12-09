@@ -80,7 +80,18 @@ namespace API.Controllers
                 return NotFound("No activities found matching the given criteria.");
             }
 
-            response.Items = users;            
+            response.Items = users
+                .Select(u => new UserResponse
+                {
+                    Id = u.Id,
+                    Username = u.Username,
+                    FirstName = u.FirstName,
+                    LastName = u.LastName,
+                    PhoneNumber = u.PhoneNumber,
+                    Gender = u.Gender,
+                    Role = u.Role
+                })
+                .ToList();
 
             return Ok(ServiceResult<UserGetResponse>.Success(response));
         }

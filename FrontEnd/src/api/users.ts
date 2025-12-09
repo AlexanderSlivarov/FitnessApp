@@ -1,4 +1,4 @@
-import { apiBase } from './client'
+import { apiBase, apiFetch } from './client'
 
 export interface User {
   id: number
@@ -9,6 +9,8 @@ export interface User {
   gender?: number | null
   role: number
   createdAt?: string
+  genderName?: string
+  roleName?: string
 }
 
 export interface Pager {
@@ -63,14 +65,8 @@ export async function getUsers(params: {
     'Filter.FirstName': firstName,
     'Filter.LastName': lastName,
   })
-  const res = await fetch(`${apiBase}/api/Users?${qs.toString()}`, {
-    headers: {
-      'Accept': 'application/json',
-      'Authorization': `Bearer ${localStorage.getItem('fitnessapp_token') || ''}`,
-    },
-  })
-  if (!res.ok) throw new Error(`Users list failed ${res.status}`)
-  return res.json() as Promise<UserListResponse>
+  const res = await apiFetch(`/api/Users?${qs.toString()}`, { method: 'GET' })
+  return res as any
 }
 
 export async function createUser(user: {
@@ -81,17 +77,12 @@ export async function createUser(user: {
   phoneNumber?: string
   gender?: number | null
 }) {
-  const res = await fetch(`${apiBase}/api/Users`, {
+  const res = await apiFetch(`/api/Users`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Authorization': `Bearer ${localStorage.getItem('fitnessapp_token') || ''}`,
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(user),
   })
-  if (!res.ok) throw new Error(`Create user failed ${res.status}`)
-  return res.json()
+  return res as any
 }
 
 export async function updateUser(id: number, user: {
@@ -102,27 +93,15 @@ export async function updateUser(id: number, user: {
   phoneNumber?: string
   gender?: number | null
 }) {
-  const res = await fetch(`${apiBase}/api/Users/${id}`, {
+  const res = await apiFetch(`/api/Users/${id}`, {
     method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Authorization': `Bearer ${localStorage.getItem('fitnessapp_token') || ''}`,
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(user),
   })
-  if (!res.ok) throw new Error(`Update user failed ${res.status}`)
-  return res.json()
+  return res as any
 }
 
 export async function deleteUser(id: number) {
-  const res = await fetch(`${apiBase}/api/Users/${id}`, {
-    method: 'DELETE',
-    headers: {
-      'Accept': 'application/json',
-      'Authorization': `Bearer ${localStorage.getItem('fitnessapp_token') || ''}`,
-    },
-  })
-  if (!res.ok) throw new Error(`Delete user failed ${res.status}`)
-  return res.json()
+  const res = await apiFetch(`/api/Users/${id}`, { method: 'DELETE' })
+  return res as any
 }
