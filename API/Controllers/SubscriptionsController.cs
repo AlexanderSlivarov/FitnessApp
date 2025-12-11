@@ -19,158 +19,60 @@ namespace API.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class SubscriptionsController : ControllerBase
+    public class SubscriptionsController : BaseCrudController<
+        Subscription,
+        ISubscriptionServices,
+        SubscriptionRequest,
+        SubscriptionGetRequest,
+        SubscriptionResponse,
+        SubscriptionGetResponse>
     {
-        private readonly ISubscriptionServices _subscriptionService;
+        public SubscriptionsController(ISubscriptionServices subscriptionService) : base(subscriptionService) { }
 
-        public SubscriptionsController(ISubscriptionServices subscriptionServices)
+        protected override void PopulateEntity(Subscription subscription, SubscriptionRequest model, out string error)
         {
-            _subscriptionService = subscriptionServices;
+            error = null;
+
+            subscription.UserId = model.UserId;
+            subscription.MembershipId = model.MembershipId;
+            subscription.StartDate = model.StartDate;
+            subscription.EndDate = model.EndDate;
+            subscription.Status = model.Status;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Get([FromQuery] SubscriptionGetRequest model)
+        protected override Expression<Func<Subscription, bool>> GetFilter(SubscriptionGetRequest model)
         {
-            model.Pager ??= new PagerRequest();
-            model.Pager.Page = model.Pager.Page <= 0 
-                                    ? 1 
-                                    : model.Pager.Page;
-            model.Pager.PageSize = model.Pager.PageSize <= 0 
-                                        ? 10 
-                                        : model.Pager.PageSize;
-
-            model.OrderBy ??= "Id";
-            model.OrderBy = typeof(Subscription).GetProperty(model.OrderBy) != null
-                                ? model.OrderBy
-                                : "Id";
-
             model.Filter ??= new SubscriptionGetFilterRequest();
 
-            Expression<Func<Subscription, bool>> filter =
-            s =>
-                (!model.Filter.UserId.HasValue || s.UserId.Equals(model.Filter.UserId)) &&
-                (!model.Filter.MembershipId.HasValue || s.MembershipId.Equals(model.Filter.MembershipId)) &&              
-                (!model.Filter.Status.HasValue || s.Status.Equals(model.Filter.Status));
+            return s =>
+                (!model.Filter.UserId.HasValue || 
+                    s.UserId == model.Filter.UserId.Value) &&
 
-            SubscriptionGetResponse response = new SubscriptionGetResponse();
+                (!model.Filter.MembershipId.HasValue || 
+                    s.MembershipId == model.Filter.MembershipId.Value) &&
 
-            response.Pager = new PagerResponse();
-            response.Pager.Page = model.Pager.Page;
-            response.Pager.PageSize = model.Pager.PageSize;
-
-            response.OrderBy = model.OrderBy;
-            response.SortAsc = model.SortAsc;
-
-            response.Filter = model.Filter;
-
-            response.Pager.Count = _subscriptionService.Count(filter);
-
-            List<Subscription> subscriptions = await _subscriptionService.GetAllAsync(
-                                                                  filter,
-                                                                  model.OrderBy,
-                                                                  model.SortAsc,
-                                                                  model.Pager.Page,
-                                                                  model.Pager.PageSize);
-
-            if (subscriptions is null || !subscriptions.Any())
-            {
-                return NotFound("No subscriptions found matching the given criteria.");
-            }
-
-            response.Items = subscriptions
-                .Select(s => new SubscriptionResponse
-                {
-                    Id = s.Id,
-                    UserId = s.UserId,
-                    MembershipId = s.MembershipId,
-                    Username = s.User.Username,                     
-                    MembershipName = s.Membership.Name, 
-                    StartDate = s.StartDate,
-                    EndDate = s.EndDate,
-                    Status = s.Status
-                })
-                .ToList();
-
-            return Ok(ServiceResult<SubscriptionGetResponse>.Success(response));
+                (!model.Filter.Status.HasValue || 
+                    s.Status == model.Filter.Status.Value);
         }
 
-        [HttpGet]
-        [Route("{id}")]
-        public async Task<IActionResult> Get([FromRoute] int id)
+        protected override void PopulageGetResponse(SubscriptionGetRequest request, SubscriptionGetResponse response)
         {
-            Subscription subscription = await _subscriptionService.GetByIdAsync(id);
-
-            if (subscription is null)
-            {
-                return NotFound("Subscription not found.");
-            }
-
-            return Ok(ServiceResult<Subscription>.Success(subscription));
+            response.Filter = request.Filter;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Post([FromBody] SubscriptionRequest model)
+        protected override SubscriptionResponse ToResponse(Subscription subscription)
         {
-            if (!ModelState.IsValid)
+            return new SubscriptionResponse
             {
-                return BadRequest(ServiceResultExtentions<List<Error>>.Failure(null, ModelState));
-            }               
-
-            Subscription newSubcsription = new Subscription
-            {
-                UserId = model.UserId,
-                MembershipId = model.MembershipId,
-                StartDate = model.StartDate,
-                EndDate = model.EndDate,
-                Status = model.Status,                
+                Id = subscription.Id,
+                UserId = subscription.UserId,
+                MembershipId = subscription.MembershipId,
+                Username = subscription.User?.Username,
+                MembershipName = subscription.Membership?.Name,
+                StartDate = subscription.StartDate,
+                EndDate = subscription.EndDate,
+                Status = subscription.Status
             };
-
-            await _subscriptionService.SaveAsync(newSubcsription);
-
-            return Ok(ServiceResult<Subscription>.Success(newSubcsription));
-        }
-
-        [HttpPut]
-        [Route("{id}")]
-        public async Task<IActionResult> Put([FromRoute] int id, [FromBody] SubscriptionRequest model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ServiceResultExtentions<List<Error>>.Failure(null, ModelState));
-            }             
-
-            Subscription subscriptionForUpdate = await _subscriptionService.GetByIdAsync(id);
-
-            if (subscriptionForUpdate is null)
-            {
-                return NotFound("Subscription not found.");
-            }                
-
-            subscriptionForUpdate.UserId = model.UserId;
-            subscriptionForUpdate.MembershipId = model.MembershipId;
-            subscriptionForUpdate.StartDate = model.StartDate;
-            subscriptionForUpdate.EndDate = model.EndDate;
-            subscriptionForUpdate.Status = model.Status;
-
-            await _subscriptionService.SaveAsync(subscriptionForUpdate);
-
-            return Ok(ServiceResult<Subscription>.Success(subscriptionForUpdate));
-        }
-
-        [HttpDelete]
-        [Route("{id}")]
-        public async Task<IActionResult> Delete([FromRoute] int id)
-        {
-            Subscription subscriptionForDelete = await _subscriptionService.GetByIdAsync(id);
-
-            if (subscriptionForDelete is null)
-            {
-                return NotFound("Subscription not found.");
-            }               
-
-            await _subscriptionService.DeleteAsync(subscriptionForDelete);
-
-            return Ok(ServiceResult<Subscription>.Success(subscriptionForDelete));
         }
     }
 }

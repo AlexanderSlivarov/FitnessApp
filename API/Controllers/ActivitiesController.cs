@@ -18,160 +18,46 @@ namespace API.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class ActivitiesController : ControllerBase
+    public class ActivitiesController : BaseCrudController<
+        Activity,
+        IActivityServices,
+        ActivityRequest,
+        ActivityGetRequest,
+        ActivityResponse,
+        ActivityGetResponse>
     {
-        private readonly IActivityServices _activityService;
+        public ActivitiesController(IActivityServices activityService) : base(activityService) { }
 
-        public ActivitiesController(IActivityServices activityServices)
+        protected override void PopulateEntity(Activity activity, ActivityRequest model, out string error)
         {
-            _activityService = activityServices;
+            error = null;
+
+            activity.Name = model.Name;
+            activity.Description = model.Description;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Get([FromQuery] ActivityGetRequest model)
+        protected override Expression<Func<Activity, bool>> GetFilter(ActivityGetRequest model)
         {
-            model.Pager ??= new PagerRequest();
-            model.Pager.Page = model.Pager.Page <= 0
-                                    ? 1
-                                    : model.Pager.Page;
-            model.Pager.PageSize = model.Pager.PageSize <= 0
-                                        ? 10
-                                        : model.Pager.PageSize;
+            model.Filter ??= new ActivityGetFilterRequest();            
 
-            model.OrderBy ??= "Id";
-            model.OrderBy = typeof(Activity).GetProperty(model.OrderBy) != null
-                                ? model.OrderBy
-                                : "Id";
-
-            model.Filter ??= new ActivityGetFilterRequest();
-
-            Expression<Func<Activity, bool>> filter =
-            a =>
-                (string.IsNullOrEmpty(model.Filter.Name) || a.Name.Contains(model.Filter.Name));
-
-            ActivityGetResponse response = new ActivityGetResponse();
-
-            response.Pager = new PagerResponse();
-            response.Pager.Page = model.Pager.Page;
-            response.Pager.PageSize = model.Pager.PageSize;
-
-            response.OrderBy = model.OrderBy;
-            response.SortAsc = model.SortAsc;
-
-            response.Filter = model.Filter;
-
-            response.Pager.Count = _activityService.Count(filter);
-
-            List<Activity> activities = await _activityService.GetAllAsync(
-                                                                  filter, 
-                                                                  model.OrderBy, 
-                                                                  model.SortAsc, 
-                                                                  model.Pager.Page, 
-                                                                  model.Pager.PageSize);
-
-            if (activities is null || !activities.Any())
-            {
-                return NotFound("No activities found matching the given criteria.");
-            }
-
-            response.Items = activities
-                .Select(a => new ActivityResponse
-                {
-                    Id = a.Id,
-                    Name = a.Name,
-                    Description = a.Description
-                })
-                .ToList();
-
-            return Ok(ServiceResult<ActivityGetResponse>.Success(response));            
+            return a =>
+                (string.IsNullOrEmpty(model.Filter.Name) || 
+                    (a.Name != null && a.Name.Contains(model.Filter.Name)));
         }
 
-        [HttpGet]
-        [Route("{id}")]
-        public async Task<IActionResult> Get([FromRoute] int id)
+        protected override void PopulageGetResponse(ActivityGetRequest request, ActivityGetResponse response)
         {
-            Activity activity = await _activityService.GetByIdAsync(id);
-
-            if (activity is null)
-            {
-                return NotFound("Activity not found.");
-            }           
-
-            return Ok(ServiceResult<Activity>.Success(activity));
+            response.Filter = request.Filter;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Post([FromBody] ActivityRequest model)
+        protected override ActivityResponse ToResponse(Activity activity)
         {
-            if (!ModelState.IsValid)
+            return new ActivityResponse 
             {
-                return BadRequest(ServiceResultExtentions<List<Error>>.Failure(null, ModelState));
-            }
-
-            Activity newActivity = new Activity
-            {
-                Name = model.Name,
-                Description = model.Description
+                Id = activity.Id,
+                Name = activity.Name,
+                Description = activity.Description
             };
-
-            await _activityService.SaveAsync(newActivity);
-
-            return Ok(ServiceResult<Activity>.Success(newActivity));
-        }
-
-        [HttpPut]
-        [Route("{id}")]
-        public async Task<IActionResult> Put([FromRoute] int id, [FromBody] ActivityRequest model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ServiceResultExtentions<List<Error>>.Failure(null, ModelState));
-            }
-
-            Activity activityForUpdate = await _activityService.GetByIdAsync(id);
-
-            if (activityForUpdate is null)
-            {
-                return NotFound("Activity not found.");
-            }
-
-            activityForUpdate.Name = model.Name;
-            activityForUpdate.Description = model.Description;
-
-            await _activityService.SaveAsync(activityForUpdate);
-
-            return Ok(ServiceResult<Activity>.Success(activityForUpdate));
-        }
-
-        [HttpDelete]
-        [Route("{id}")]
-        public async Task<IActionResult> Delete([FromRoute] int id)
-        {
-            Activity activityForDelete = await _activityService.GetByIdAsync(id);
-
-            if (activityForDelete is null)
-            {
-                return NotFound("Activity not found.");
-            }
-
-            try
-            {
-                await _activityService.DeleteAsync(activityForDelete);
-            }
-            catch (Microsoft.EntityFrameworkCore.DbUpdateException ex)
-            {
-                return Conflict(ServiceResultExtentions<List<Error>>.Failure(
-                    new List<Error>
-                    {
-                        new Error
-                        {
-                            Key = nameof(Activity),
-                            Messages = new List<string>{ "Cannot delete activity because sessions depend on it." }
-                        }
-                    }, ModelState));
-            }
-
-            return Ok(ServiceResult<Activity>.Success(activityForDelete));
         }
     }
 }

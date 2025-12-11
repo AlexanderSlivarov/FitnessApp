@@ -23,7 +23,8 @@ export async function getInstructors(params: InstructorListParams = {}){
   qs.set('Pager.PageSize', String(params.pageSize ?? 10))
   qs.set('OrderBy', String(params.orderBy ?? 'Id'))
   qs.set('SortAsc', String(params.sortAsc ?? true))
-  if (params.experienceYears !== undefined) qs.set('Filter.ExperienceYears', String(params.experienceYears))
+  // Always include a Filter key so backend binds Filter object
+  qs.set('Filter.ExperienceYears', params.experienceYears !== undefined ? String(params.experienceYears) : '')
   const res: any = await apiFetch(`/api/Instructors?${qs.toString()}`, { method: 'GET' })
   return res?.data ?? res
 }

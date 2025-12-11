@@ -29,29 +29,33 @@ export async function getBookings(params: BookingListParams = {}){
   qs.set('Pager.PageSize', String(params.pageSize ?? 10))
   qs.set('OrderBy', String(params.orderBy ?? 'Id'))
   qs.set('SortAsc', String(params.sortAsc ?? true))
-  if (params.userId !== undefined) qs.set('Filter.UserId', String(params.userId))
-  if (params.sessionId !== undefined) qs.set('Filter.SessionId', String(params.sessionId))
-  if (params.status !== undefined) qs.set('Filter.Status', String(params.status))
+  // Always include Filter keys (empty when undefined) to bind Filter object
+  qs.set('Filter.UserId', params.userId !== undefined ? String(params.userId) : '')
+  qs.set('Filter.SessionId', params.sessionId !== undefined ? String(params.sessionId) : '')
+  qs.set('Filter.Status', params.status !== undefined ? String(params.status) : '')
   const res: any = await apiFetch(`/api/Bookings?${qs.toString()}`, { method: 'GET' })
-  return res?.data ?? res
+  return res as any
 }
 
 export async function createBooking(payload: { userId: number; sessionId: number; status: number }){
-  return apiFetch('/api/Bookings', {
+  const res = await apiFetch('/api/Bookings', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   })
+  return res as any
 }
 
 export async function updateBooking(id: number, payload: { userId: number; sessionId: number; status: number }){
-  return apiFetch(`/api/Bookings/${id}`, {
+  const res = await apiFetch(`/api/Bookings/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   })
+  return res as any
 }
 
 export async function deleteBooking(id: number){
-  return apiFetch(`/api/Bookings/${id}`, { method: 'DELETE' })
+  const res = await apiFetch(`/api/Bookings/${id}`, { method: 'DELETE' })
+  return res as any
 }

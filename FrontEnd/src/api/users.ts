@@ -7,7 +7,7 @@ export interface User {
   lastName?: string | null
   phoneNumber?: string | null
   gender?: number | null
-  role: number
+  role: number | null
   createdAt?: string
   genderName?: string
   roleName?: string
@@ -76,6 +76,7 @@ export async function createUser(user: {
   lastName?: string
   phoneNumber?: string
   gender?: number | null
+  role?: number | null
 }) {
   const res = await apiFetch(`/api/Users`, {
     method: 'POST',
@@ -92,6 +93,7 @@ export async function updateUser(id: number, user: {
   lastName?: string
   phoneNumber?: string
   gender?: number | null
+  role?: number | null
 }) {
   const res = await apiFetch(`/api/Users/${id}`, {
     method: 'PUT',

@@ -20,160 +20,54 @@ namespace API.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class InstructorsController : ControllerBase
+    public class InstructorsController : BaseCrudController<
+        Instructor,
+        IInstructorServices,
+        InstructorRequest,
+        InstructorGetRequest,
+        InstructorResponse,
+        InstructorGetResponse>
     {
-        private readonly IInstructorServices _instructorService;
         private readonly IUserServices _userService;
-
-        public InstructorsController(IInstructorServices instructorService, IUserServices userService)
+        public InstructorsController(IInstructorServices instructorService, IUserServices userService) : base(instructorService) 
         {
-            _instructorService = instructorService;
             _userService = userService;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Get([FromQuery] InstructorGetRequest model)
+        protected override void PopulateEntity(Instructor instructor, InstructorRequest model, out string error)
         {
-            model.Pager ??= new PagerRequest();
-            model.Pager.Page = model.Pager.Page <= 0
-                                    ? 1
-                                    : model.Pager.Page;
-            model.Pager.PageSize = model.Pager.PageSize <= 0
-                                        ? 10
-                                        : model.Pager.PageSize;
+            error = null;
 
-            model.OrderBy ??= "Id";
-            model.OrderBy = typeof(Instructor).GetProperty(model.OrderBy) != null
-                                ? model.OrderBy
-                                : "Id";
+            instructor.UserId = model.UserId;
+            instructor.Bio = model.Bio;
+            instructor.ExperienceYears = model.ExperienceYears;
+        }
 
+        protected override Expression<Func<Instructor, bool>> GetFilter(InstructorGetRequest model)
+        {
             model.Filter ??= new InstructorGetFilterRequest();
 
-            Expression<Func<Instructor, bool>> filter =
-            i =>
-                ((!model.Filter.ExperienceYears.HasValue) || i.ExperienceYears.Equals(model.
-                Filter.ExperienceYears));
-
-            InstructorGetResponse response = new InstructorGetResponse();
-
-            response.Pager = new PagerResponse();
-            response.Pager.Page = model.Pager.Page;
-            response.Pager.PageSize = model.Pager.PageSize;
-
-            response.OrderBy = model.OrderBy;
-            response.SortAsc = model.SortAsc;
-
-            response.Filter = model.Filter;
-
-            response.Pager.Count = _instructorService.Count(filter);
-
-            List<Instructor> instructors = await _instructorService.GetAllAsync(
-                                                                  filter,
-                                                                  model.OrderBy,
-                                                                  model.SortAsc,
-                                                                  model.Pager.Page,
-                                                                  model.Pager.PageSize);
-
-            if (instructors is null || !instructors.Any())
-            {
-                return NotFound("No instructors found matching the given criteria.");
-            }
-
-            response.Items = instructors
-                .Select(i => new InstructorResponse
-                {
-                    Id = i.Id,
-                    UserId = i.UserId,
-                    Username = i.User?.Username,
-                    FullName = $"{i.User?.FirstName} {i.User?.LastName}",
-                    Bio = i.Bio,
-                    ExperienceYears = i.ExperienceYears
-                })
-                .ToList();
-
-            return Ok(ServiceResult<InstructorGetResponse>.Success(response));
+            return i =>
+                (!model.Filter.ExperienceYears.HasValue || 
+                    i.ExperienceYears == model.Filter.ExperienceYears.Value);
         }
 
-        [HttpGet]
-        [Route("{id}")]
-        public async Task<IActionResult> Get([FromRoute] int id)
+        protected override void PopulageGetResponse(InstructorGetRequest request, InstructorGetResponse response)
         {
-            Instructor instructor = await _instructorService.GetByIdAsync(id);
-
-            if (instructor is null)
-            {
-                return NotFound("Instructor not found.");
-            }
-
-            return Ok(ServiceResult<Instructor>.Success(instructor));
+            response.Filter = request.Filter;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Post([FromBody] InstructorRequest model)
+        protected override InstructorResponse ToResponse(Instructor instructor)
         {
-            if (!ModelState.IsValid)
+            return new InstructorResponse
             {
-                return BadRequest(ServiceResultExtentions<List<Error>>.Failure(null, ModelState));
-            }
-
-            Instructor newInstructor = new Instructor
-            {
-                UserId = model.UserId,
-                Bio = model.Bio,
-                ExperienceYears = model.ExperienceYears,
+                Id = instructor.Id,
+                UserId = instructor.UserId,
+                Username = instructor.User?.Username,
+                FullName = $"{instructor.User?.FirstName} {instructor.User?.LastName}",
+                Bio = instructor.Bio,
+                ExperienceYears = instructor.ExperienceYears
             };
-
-            await _instructorService.SaveAsync(newInstructor);
-
-            User user = await _userService.GetByIdAsync(model.UserId);
-
-            if (user is not null)
-            {
-                user.Role = UserRole.Instructor;
-                await _userService.SaveAsync(user);
-            }
-
-            return Ok(ServiceResult<Instructor>.Success(newInstructor));
-        }
-
-        [HttpPut]
-        [Route("{id}")]
-        public async Task<IActionResult> Put([FromRoute] int id, [FromBody] InstructorRequest model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ServiceResultExtentions<List<Error>>.Failure(null, ModelState));
-            }
-
-            Instructor instructorForUpdate = await _instructorService.GetByIdAsync(id);
-
-            if (instructorForUpdate is null)
-            {
-                return NotFound("Instructor not found.");
-            }
-            
-            instructorForUpdate.Bio = model.Bio;
-            instructorForUpdate.ExperienceYears = model.ExperienceYears;
-
-            await _instructorService.SaveAsync(instructorForUpdate);
-
-            return Ok(ServiceResult<Instructor>.Success(instructorForUpdate));
-        }
-
-        [HttpDelete]
-        [Route("{id}")]
-        public async Task<IActionResult> Delete([FromRoute] int id)
-        {
-            Instructor instructorForDelete = await _instructorService.GetByIdAsync(id);
-
-            if (instructorForDelete is null)
-            {
-                return NotFound("Instructor not found.");
-            }
-
-            await _instructorService.DeleteAsync(instructorForDelete);
-
-            return Ok(ServiceResult<Instructor>.Success(instructorForDelete));
-        }
+        }     
     }
 }

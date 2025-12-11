@@ -4,6 +4,8 @@ using Common.Entities;
 
 namespace API.Infrastructure.ResponseDTOs.Studios
 {
-    public class StudioGetResponse : BaseGetResponse<StudioResponse, StudioGetFilterRequest>
-    { }
+    public class StudioGetResponse : BaseGetResponse<StudioResponse>
+    {
+        public StudioGetFilterRequest Filter { get; set; }
+    }
 }

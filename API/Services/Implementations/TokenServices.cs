@@ -14,7 +14,8 @@ namespace API.Services.Implementations
         {
             Claim[] claims = new Claim[]
             {
-                new Claim("loggedUserId", user.Id.ToString())
+                new Claim("loggedUserId", user.Id.ToString()),
+                new Claim("role", user.Role.ToString())
             };
 
             var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("!AsdPasswordAsd998001!AsdPasswordAsd998001!AsdPasswordAsd998001"));

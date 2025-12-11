@@ -38,10 +38,11 @@ export async function getSessions(params: SessionListParams = {}){
   if (params.instructorId !== undefined) qs.set('Filter.InstructorId', String(params.instructorId))
   if (params.studioId !== undefined) qs.set('Filter.StudioId', String(params.studioId))
   if (params.activityId !== undefined) qs.set('Filter.ActivityId', String(params.activityId))
-  if (params.name) qs.set('Filter.Name', params.name)
-  if (params.date) qs.set('Filter.Date', params.date)
+  // Always include these filter keys to ensure Filter object binds
+  qs.set('Filter.Name', params.name ?? '')
+  qs.set('Filter.Date', params.date ?? '')
   const res: any = await apiFetch(`/api/Sessions?${qs.toString()}`, { method: 'GET' })
-  return res?.data ?? res
+  return res as any
 }
 
 export async function createSession(payload: {
@@ -55,11 +56,12 @@ export async function createSession(payload: {
   minParticipants: number
   difficulty: number
 }){
-  return apiFetch('/api/Sessions', {
+  const res = await apiFetch('/api/Sessions', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   })
+  return res as any
 }
 
 export async function updateSession(id: number, payload: {
@@ -73,13 +75,15 @@ export async function updateSession(id: number, payload: {
   minParticipants: number
   difficulty: number
 }){
-  return apiFetch(`/api/Sessions/${id}`, {
+  const res = await apiFetch(`/api/Sessions/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   })
+  return res as any
 }
 
 export async function deleteSession(id: number){
-  return apiFetch(`/api/Sessions/${id}`, { method: 'DELETE' })
+  const res = await apiFetch(`/api/Sessions/${id}`, { method: 'DELETE' })
+  return res as any
 }

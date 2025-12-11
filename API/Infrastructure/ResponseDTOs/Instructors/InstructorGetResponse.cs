@@ -4,6 +4,8 @@ using Common.Entities;
 
 namespace API.Infrastructure.ResponseDTOs.Instructors
 {
-    public class InstructorGetResponse : BaseGetResponse<InstructorResponse, InstructorGetFilterRequest>
-    { }
+    public class InstructorGetResponse : BaseGetResponse<InstructorResponse>
+    {
+        public InstructorGetFilterRequest Filter { get; set; }
+    }
 }

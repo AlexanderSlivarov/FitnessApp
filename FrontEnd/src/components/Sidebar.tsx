@@ -23,21 +23,15 @@ export default function Sidebar() {
             </NavLink>
           </li>
           <li className="nav-item">
-            <NavLink className={({isActive}) => `nav-link ${isActive ? 'active' : ''}`} to="/activities">
-              <i className="fas fa-list"></i>
-              <span>Activities</span>
-            </NavLink>
-          </li>
-          <li className="nav-item">
-            <NavLink className={({isActive}) => `nav-link ${isActive ? 'active' : ''}`} to="/sessions">
-              <i className="fas fa-clock"></i>
-              <span>Sessions</span>
-            </NavLink>
-          </li>
-          <li className="nav-item">
             <NavLink className={({isActive}) => `nav-link ${isActive ? 'active' : ''}`} to="/instructors">
               <i className="fas fa-user-tie"></i>
               <span>Instructors</span>
+            </NavLink>
+          </li>
+          <li className="nav-item">
+            <NavLink className={({isActive}) => `nav-link ${isActive ? 'active' : ''}`} to="/activities">
+              <i className="fas fa-list"></i>
+              <span>Activities</span>
             </NavLink>
           </li>
           <li className="nav-item">
@@ -55,7 +49,13 @@ export default function Sidebar() {
           <li className="nav-item">
             <NavLink className={({isActive}) => `nav-link ${isActive ? 'active' : ''}`} to="/equipments">
               <i className="fas fa-tools"></i>
-              <span>Equipment</span>
+              <span>Equipments</span>
+            </NavLink>
+          </li>
+          <li className="nav-item">
+            <NavLink className={({isActive}) => `nav-link ${isActive ? 'active' : ''}`} to="/sessions">
+              <i className="fas fa-clock"></i>
+              <span>Sessions</span>
             </NavLink>
           </li>
           <li className="nav-item">

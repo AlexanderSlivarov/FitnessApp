@@ -3,6 +3,8 @@ using Common.Entities;
 
 namespace API.Infrastructure.RequestDTOs.Activities
 {
-    public class ActivityGetRequest : BaseGetRequest<ActivityGetFilterRequest>
-    { }
+    public class ActivityGetRequest : BaseGetRequest
+    { 
+        public ActivityGetFilterRequest Filter { get; set; }
+    }
 }

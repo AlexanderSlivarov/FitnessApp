@@ -15,7 +15,7 @@ namespace API.Infrastructure.ResponseDTOs.Users
         public UserGender? Gender { get; set; }
         public string GenderName => Gender?.ToString();
 
-        public UserRole Role { get; set; }
+        public UserRole? Role { get; set; }
         public string RoleName => Role.ToString();
     }
 }

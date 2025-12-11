@@ -19,160 +19,58 @@ namespace API.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class MembershipsController : ControllerBase
+    public class MembershipsController : BaseCrudController<
+        Membership,
+        IMembershipServices,
+        MembershipRequest,
+        MembershipGetRequest,
+        MembershipResponse,
+        MembershipGetResponse>
     {
-        private readonly IMembershipServices _membershipService;
+        public MembershipsController(IMembershipServices membershipService) : base(membershipService) { }
 
-        public MembershipsController(IMembershipServices membershipServices)
+        protected override void PopulateEntity(Membership membership, MembershipRequest model, out string error)
         {
-            _membershipService = membershipServices;
+            error = null;
+
+            membership.Name = model.Name;
+            membership.Price = model.Price;
+            membership.Duration = model.Duration;
+            membership.DurationType = model.DurationType;
+            membership.Description = model.Description;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Get([FromQuery] MembershipGetRequest model)
+        protected override Expression<Func<Membership, bool>> GetFilter(MembershipGetRequest model)
         {
-            model.Pager ??= new PagerRequest();
-            model.Pager.Page = model.Pager.Page <= 0
-                                    ? 1
-                                    : model.Pager.Page;
-            model.Pager.PageSize = model.Pager.PageSize <= 0
-                                        ? 10
-                                        : model.Pager.PageSize;
-
-            model.OrderBy ??= "Id";
-            model.OrderBy = typeof(Membership).GetProperty(model.OrderBy) != null
-                                ? model.OrderBy
-                                : "Id";
-
             model.Filter ??= new MembershipGetFilterRequest();
 
-            Expression<Func<Membership, bool>> filter =
-            m =>
-                (string.IsNullOrEmpty(model.Filter.Name) || m.Name.Contains(model.Filter.Name)) &&
-                (!model.Filter.Price.HasValue || m.Price.Equals(model.Filter.Price)) &&
-                (!model.Filter.DurationType.HasValue || !model.Filter.DurationType.HasValue ||
-                (m.DurationType == model.Filter.DurationType.Value &&
-                 m.DurationType == model.Filter.DurationType.Value));
+            return m =>
+                (string.IsNullOrEmpty(model.Filter.Name) || 
+                    (m.Name != null && m.Name.Contains(model.Filter.Name))) &&
 
-            MembershipGetResponse response = new MembershipGetResponse();
+                (!model.Filter.Price.HasValue || 
+                    m.Price == model.Filter.Price.Value) &&
 
-            response.Pager = new PagerResponse();
-            response.Pager.Page = model.Pager.Page;
-            response.Pager.PageSize = model.Pager.PageSize;
-
-            response.OrderBy = model.OrderBy;
-            response.SortAsc = model.SortAsc;
-
-            response.Filter = model.Filter;
-
-            response.Pager.Count = _membershipService.Count(filter);
-
-            List<Membership> memberships = await _membershipService.GetAllAsync(
-                                                                  filter,
-                                                                  model.OrderBy,
-                                                                  model.SortAsc,
-                                                                  model.Pager.Page,
-                                                                  model.Pager.PageSize);
-
-            if (memberships is null || !memberships.Any())
-            {
-                return NotFound("No memberships found matching the given criteria.");
-            }
-
-            response.Items = memberships
-                .Select(m => new MembershipResponse
-                {
-                    Id = m.Id,
-                    Name = m.Name,
-                    Price = m.Price,
-                    Duration = m.Duration,
-                    DurationType = m.DurationType,
-                    Description = m.Description
-                })
-                .ToList();
-
-            return Ok(ServiceResult<MembershipGetResponse>.Success(response));
+                (!model.Filter.DurationType.HasValue || 
+                    m.DurationType == model.Filter.DurationType.Value);
         }
 
-        [HttpGet]
-        [Route("{id}")]
-
-        public async Task<IActionResult> Get([FromRoute] int id)
+        protected override void PopulageGetResponse(MembershipGetRequest request, MembershipGetResponse response)
         {
-            Membership membership = await _membershipService.GetByIdAsync(id);
-
-            if (membership is null)
-            {
-                return NotFound("Membership not found.");
-            }
-
-            return Ok(ServiceResult<Membership>.Success(membership));
+            response.Filter = request.Filter;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Post([FromBody] MembershipRequest model)
+        protected override MembershipResponse ToResponse(Membership membership)
         {
-            if (!ModelState.IsValid)
+            return new MembershipResponse
             {
-                return BadRequest(ServiceResultExtentions<List<Error>>.Failure(null, ModelState));
-            }
-
-            Membership newMembership = new Membership
-            {
-                Name = model.Name,
-                Price = model.Price,
-                Duration = model.Duration,
-                DurationType = model.DurationType,
-                Description = model.Description
+                Id = membership.Id,
+                Name = membership.Name,
+                Price = membership.Price,
+                Duration = membership.Duration,
+                DurationType = membership.DurationType,
+                Description = membership.Description
             };
-
-            await _membershipService.SaveAsync(newMembership);
-
-            return Ok(ServiceResult<Membership>.Success(newMembership));
-        }
-
-        [HttpPut]
-        [Route("{id}")]
-        public async Task<IActionResult> Put([FromRoute] int id, [FromBody] MembershipRequest model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ServiceResultExtentions<List<Error>>.Failure(null, ModelState));
-            }
-
-            Membership membershipForUpdate = await _membershipService.GetByIdAsync(id);
-
-            if (membershipForUpdate is null)
-            {
-                return NotFound("Membership not found.");
-            }
-
-            membershipForUpdate.Name = model.Name;
-            membershipForUpdate.Price = model.Price;
-            membershipForUpdate.Duration = model.Duration;
-            membershipForUpdate.DurationType = model.DurationType;
-            membershipForUpdate.Description = model.Description;
-
-            await _membershipService.SaveAsync(membershipForUpdate);
-
-            return Ok(ServiceResult<Membership>.Success(membershipForUpdate));
-        }
-
-        [HttpDelete]
-        [Route("{id}")]
-
-        public async Task<IActionResult> Delete([FromRoute] int id)
-        {
-            Membership membershipForDelete = await _membershipService.GetByIdAsync(id);
-
-            if (membershipForDelete is null)
-            {
-                return NotFound("Membership not found.");
-            }
-
-            await _membershipService.DeleteAsync(membershipForDelete);
-
-            return Ok(ServiceResult<Membership>.Success(membershipForDelete));
         }
     }
 }

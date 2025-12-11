@@ -4,6 +4,8 @@ using Common.Entities;
 
 namespace API.Infrastructure.ResponseDTOs.Users
 {
-    public class UserGetResponse : BaseGetResponse<UserResponse, UserGetFilterRequest>
-    { }
+    public class UserGetResponse : BaseGetResponse<UserResponse>
+    {
+        public UserGetFilterRequest Filter { get; set; }
+    }
 }

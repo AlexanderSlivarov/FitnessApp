@@ -18,7 +18,7 @@ namespace Common.Entities
         public string? PhoneNumber { get; set; }
 
         public UserGender? Gender { get; set; }
-        public UserRole Role { get; set; } 
+        public UserRole? Role { get; set; } 
 
         public DateTime CreatedAt { get; set; }
 

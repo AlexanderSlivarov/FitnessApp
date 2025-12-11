@@ -2,6 +2,8 @@
 
 namespace API.Infrastructure.RequestDTOs.Subscriptions
 {
-    public class SubscriptionGetRequest : BaseGetRequest<SubscriptionGetFilterRequest>
-    { }
+    public class SubscriptionGetRequest : BaseGetRequest
+    {
+        public SubscriptionGetFilterRequest Filter { get; set; }
+    }
 }

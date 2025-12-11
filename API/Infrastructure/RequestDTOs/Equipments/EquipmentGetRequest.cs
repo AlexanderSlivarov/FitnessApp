@@ -2,6 +2,8 @@
 
 namespace API.Infrastructure.RequestDTOs.Equipments
 {
-    public class EquipmentGetRequest : BaseGetRequest<EquipmentGetFilterRequest>
-    { }    
+    public class EquipmentGetRequest : BaseGetRequest
+    {
+        public EquipmentGetFilterRequest Filter { get; set; }
+    }    
 }

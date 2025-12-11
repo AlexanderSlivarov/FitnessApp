@@ -2,6 +2,8 @@
 
 namespace API.Infrastructure.RequestDTOs.Memberships
 {
-    public class MembershipGetRequest : BaseGetRequest<MembershipGetFilterRequest>
-    { }
+    public class MembershipGetRequest : BaseGetRequest
+    {
+        public MembershipGetFilterRequest Filter { get; set; }
+    }
 }

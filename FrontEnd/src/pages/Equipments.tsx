@@ -10,9 +10,9 @@ export default function Equipments(){
 	const [page, setPage] = useState(1)
 	const [pageSize, setPageSize] = useState(10)
 	const [count, setCount] = useState(0)
-	 const [filterName, setFilterName] = useState('')
+	const [filterName, setFilterName] = useState('')
  	const [filterCondition, setFilterCondition] = useState<number | ''>('')
-	 const [filterStudioId, setFilterStudioId] = useState<number | ''>('')
+	const [filterStudioId, setFilterStudioId] = useState<number | ''>('')
 
 	const totalPages = useMemo(() => Math.max(1, Math.ceil(count / pageSize)), [count, pageSize])
 
@@ -43,7 +43,7 @@ export default function Equipments(){
 	const [editing, setEditing] = useState<Equipment | null>(null)
 	const [form, setForm] = useState<{ name: string; quantity: number; condition: number; studioId: number | '' }>({ name: '', quantity: 1, condition: 0, studioId: '' })
 	const startCreate = () => { setEditing(null); setForm({ name: '', quantity: 1, condition: 0, studioId: (studios[0]?.id ?? '') }) }
-	const startEdit = (e: Equipment) => { setEditing(e); setForm({ name: e.name || '', quantity: e.quantity, condition: e.condition, studioId: e.studioId }) }
+	const startEdit = (e: Equipment) => { setEditing(e); setForm({ name: e.name || '', quantity: e.quantity, condition: typeof e.condition === "number" ? e.condition : 0, studioId: e.studioId }) }
 
 	useEffect(()=>{ (async()=>{ try{ const res:any = await getStudios({ page:1, pageSize:100, orderBy:'Name', sortAsc:true }); const data = res?.data ?? res; const list = data?.items ?? []; setStudios(list); if (!editing && (form.studioId === '' || form.studioId === 0) && list.length){ setForm(f=>({ ...f, studioId: list[0].id })) } } catch{} })() }, [])
 	const submitForm = async (ev: FormEvent) => {
@@ -141,11 +141,11 @@ export default function Equipments(){
 											<td>{e.quantity}</td>
 											<td>{['New','Excellent','Good','Fair','Poor','Broken'][e.condition] ?? e.condition}</td>
 											  <td>{e.studioName ?? e.studioId}</td>
-											<td className="d-flex gap-2">
-												<button className="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#equipmentModal" onClick={()=>startEdit(e)}>
+											<td className="d-flex justify-content-center gap-3">
+												<button className="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#equipmentModal" onClick={()=>startEdit(e)}>
 													<i className="fas fa-edit"></i>
 												</button>
-												<button className="btn btn-sm btn-outline-danger" onClick={()=>confirmRemove(e)}>
+												<button className="btn btn-outline-danger" onClick={()=>confirmRemove(e)}>
 													<i className="fas fa-trash"></i>
 												</button>
 											</td>

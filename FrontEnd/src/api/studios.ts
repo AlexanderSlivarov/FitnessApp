@@ -23,8 +23,9 @@ export async function getStudios(params: { page?: number; pageSize?: number; nam
     'SortAsc': String(sortAsc),
     'OrderBy': orderBy,
   })
-  if (name) qs.append('Filter.Name', name)
-  if (location) qs.append('Filter.Location', location)
+  // Always include string filters even if empty to bind Filter object
+  qs.append('Filter.Name', name ?? '')
+  qs.append('Filter.Location', location ?? '')
   if (capacity !== undefined) qs.append('Filter.Capacity', String(capacity))
   const res: any = await apiFetch(`/api/Studios?${qs.toString()}`)
   return (res?.data ?? res) as StudioListResponse

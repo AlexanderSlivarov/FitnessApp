@@ -46,17 +46,17 @@ export async function getEquipments(options: {
   orderBy?: string;
   sortAsc?: boolean;
 } = {}): Promise<EquipmentListResponse> {
-  const query = buildQuery({
-    'Pager.Page': options.page ?? 1,
-    'Pager.PageSize': options.pageSize ?? 10,
-    OrderBy: options.orderBy ?? 'Id',
-    SortAsc: options.sortAsc ?? true,
-    'Filter.Name': options.name,
-    'Filter.Condition': options.condition,
-    'Filter.StudioId': options.studioId,
-  });
-  const res = await apiFetch(`/api/Equipments?${query}`);
-  return res.data ?? res; // ServiceResult wrapper
+  // Do NOT skip empty values: backend needs Filter object bound
+  const qs = new URLSearchParams();
+  qs.set('Pager.Page', String(options.page ?? 1));
+  qs.set('Pager.PageSize', String(options.pageSize ?? 10));
+  qs.set('OrderBy', String(options.orderBy ?? 'Id'));
+  qs.set('SortAsc', String(options.sortAsc ?? true));
+  qs.set('Filter.Name', options.name ?? '');
+  qs.set('Filter.Condition', options.condition !== undefined ? String(options.condition) : '');
+  qs.set('Filter.StudioId', options.studioId !== undefined ? String(options.studioId) : '');
+  const res = await apiFetch(`/api/Equipments?${qs.toString()}`);
+  return res as any; // let pages unwrap .data if present
 }
 
 export async function createEquipment(payload: Omit<Equipment, 'id'>): Promise<Equipment> {

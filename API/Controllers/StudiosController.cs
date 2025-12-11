@@ -19,150 +19,55 @@ namespace API.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class StudiosController : ControllerBase
-    {
-        private readonly IStudioServices _studioService;
 
-        public StudiosController(IStudioServices studioServices)
+    public class StudiosController : BaseCrudController<
+        Studio,
+        IStudioServices,
+        StudioRequest,
+        StudioGetRequest,
+        StudioResponse,
+        StudioGetResponse>
+    {
+        public StudiosController(IStudioServices studioService) : base(studioService) { }
+
+        protected override void PopulateEntity(Studio studio, StudioRequest model, out string error)
         {
-            _studioService = studioServices;
+            error = null;
+
+            studio.Name = model.Name;
+            studio.Location = model.Location;
+            studio.Capacity = model.Capacity;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Get([FromQuery] StudioGetRequest model)
+        protected override Expression<Func<Studio, bool>> GetFilter(StudioGetRequest model)
         {
-            model.Pager ??= new PagerRequest();
-            model.Pager.Page = model.Pager.Page <= 0
-                                          ? 1
-                                          : model.Pager.Page;
-            model.Pager.PageSize = model.Pager.PageSize <= 0
-                                        ? 10
-                                        : model.Pager.PageSize;
-
-            model.OrderBy ??= "Id";
-            model.OrderBy = typeof(Studio).GetProperty(model.OrderBy) != null
-                                ? model.OrderBy
-                                : "Id";
-
             model.Filter ??= new StudioGetFilterRequest();
 
-            Expression<Func<Studio, bool>> filter =
-            s =>
-                (string.IsNullOrEmpty(model.Filter.Name) || s.Name.Contains(model.Filter.Name)) &&
-                (string.IsNullOrEmpty(model.Filter.Location) || s.Location.Contains(model.Filter.Location)) &&
-                (!model.Filter.Capacity.HasValue || s.Capacity.Equals(model.Filter.Capacity));
+            return s =>
+                (string.IsNullOrEmpty(model.Filter.Name) || 
+                    (s.Name != null && s.Name.Contains(model.Filter.Name))) &&
 
-            StudioGetResponse response = new StudioGetResponse();
+                (string.IsNullOrEmpty(model.Filter.Location) || 
+                    (s.Location != null && s.Location.Contains(model.Filter.Location))) &&
 
-            response.Pager = new PagerResponse();
-            response.Pager.Page = model.Pager.Page;
-            response.Pager.PageSize = model.Pager.PageSize;
-
-            response.OrderBy = model.OrderBy;
-            response.SortAsc = model.SortAsc;
-
-            response.Filter = model.Filter;
-
-            response.Pager.Count = _studioService.Count(filter);
-
-            List<Studio> studios = await _studioService.GetAllAsync(
-                                                                  filter,
-                                                                  model.OrderBy,
-                                                                  model.SortAsc,
-                                                                  model.Pager.Page,
-                                                                  model.Pager.PageSize);
-
-            if (studios is null || !studios.Any())
-            {
-                return NotFound("No studios found matching the given criteria.");
-            }
-
-            response.Items = studios
-                .Select(s => new StudioResponse
-                {
-                    Id = s.Id,
-                    Name = s.Name,
-                    Location = s.Location,
-                    Capacity = s.Capacity
-                })
-                .ToList();
-
-            return Ok(ServiceResult<StudioGetResponse>.Success(response));
+                (!model.Filter.Capacity.HasValue || 
+                    s.Capacity == model.Filter.Capacity.Value);
         }
 
-        [HttpGet]
-        [Route("{id}")]
-        public async Task<IActionResult> Get([FromRoute] int id)
+        protected override void PopulageGetResponse(StudioGetRequest request, StudioGetResponse response)
         {
-            Studio studio = await _studioService.GetByIdAsync(id);
-
-            if (studio is null)
-            {
-                return NotFound("Studio not found.");
-            }
-
-            return Ok(ServiceResult<Studio>.Success(studio));
+            response.Filter = request.Filter;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Post([FromBody] StudioRequest model)
+        protected override StudioResponse ToResponse(Studio studio)
         {
-            if (!ModelState.IsValid)
+            return new StudioResponse
             {
-                return BadRequest(ServiceResultExtentions<List<Error>>.Failure(null, ModelState));
-            }
-
-            Studio newStudio = new Studio
-            {
-                Name = model.Name,
-                Location = model.Location,
-                Capacity = model.Capacity
+                Id = studio.Id,
+                Name = studio.Name,
+                Location = studio.Location,
+                Capacity = studio.Capacity
             };
-
-            await _studioService.SaveAsync(newStudio);
-
-            return Ok(ServiceResult<Studio>.Success(newStudio));
-        }
-
-        [HttpPut]
-        [Route("{id}")]
-        public async Task<IActionResult> Put([FromRoute] int id, [FromBody] StudioRequest model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ServiceResultExtentions<List<Error>>.Failure(null, ModelState));
-            }
-
-            Studio studioForUpdate = await _studioService.GetByIdAsync(id);
-
-            if (studioForUpdate is null)
-            {
-                return NotFound("Studio not found.");
-            }
-
-            studioForUpdate.Name = model.Name;
-            studioForUpdate.Location = model.Location;
-            studioForUpdate.Capacity = model.Capacity;
-
-            await _studioService.SaveAsync(studioForUpdate);
-
-            return Ok(ServiceResult<Studio>.Success(studioForUpdate));
-        }
-
-        [HttpDelete]
-        [Route("{id}")]
-        public async Task<IActionResult> Delete([FromRoute] int id)
-        {
-            Studio studioForDelete = await _studioService.GetByIdAsync(id);
-
-            if (studioForDelete is null)
-            {
-                return NotFound("Studio not found.");
-            }
-
-            await _studioService.DeleteAsync(studioForDelete);
-
-            return Ok(ServiceResult<Studio>.Success(studioForDelete));
         }
     }
 }

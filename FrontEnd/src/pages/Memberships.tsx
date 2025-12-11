@@ -58,8 +58,10 @@ export default function Memberships() {
       setItems(data?.items || [])
       setCount(data?.pager?.count || data?.items?.length || 0)
 
-    } catch {
-      setEmptyMessage('No memberships found')
+    } catch (e: any) {
+      const backendMsg = (e?.errors?.[0]?.message) ?? (e?.data?.message) ?? (typeof e?.data === 'string' ? e.data : undefined) ?? e?.message
+      setEmptyMessage(String(backendMsg || 'No membership found matching the given criteria.'))
+      setError(null)
     } finally {
       setLoading(false)
     }
@@ -241,9 +243,9 @@ export default function Memberships() {
                       <td>{m.durationTypeName}</td>
                       <td>{m.description}</td>
 
-                      <td className="d-flex gap-2">
+                      <td className="d-flex justify-content-center gap-3">
                         <button
-                          className="btn btn-sm btn-outline-secondary"
+                          className="btn btn-outline-secondary"
                           data-bs-toggle="modal"
                           data-bs-target="#membershipModal"
                           onClick={() => startEdit(m)}
@@ -252,7 +254,7 @@ export default function Memberships() {
                         </button>
 
                         <button
-                          className="btn btn-sm btn-outline-danger"
+                          className="btn btn-outline-danger"
                           onClick={() => confirmRemove(m)}
                         >
                           <i className="fas fa-trash"></i>

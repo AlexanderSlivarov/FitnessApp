@@ -43,11 +43,11 @@ export async function getSubscriptions(params: SubscriptionListParams = {}) {
   if (params.membershipId !== undefined)
     qs.set("Filter.MembershipId", String(params.membershipId))
 
-  if (params.status !== undefined)
-    qs.set("Filter.Status", SubscriptionStatusMap[params.status])
+    // Always include Status key to bind Filter object even when undefined
+    qs.set("Filter.Status", params.status !== undefined ? String(params.status) : "")
 
   const res: any = await apiFetch(`/api/Subscriptions?${qs}`, { method: "GET" })
-  return res?.data ?? res
+  return res as any
 }
 
 export async function createSubscription(payload: {
@@ -95,7 +95,8 @@ export async function updateSubscription(id: number, payload: {
 }
 
 export async function deleteSubscription(id: number) {
-  return apiFetch(`/api/Subscriptions/${id}`, {
+  const res = await apiFetch(`/api/Subscriptions/${id}`, {
     method: "DELETE"
   })
+  return res as any
 }

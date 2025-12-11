@@ -2,6 +2,8 @@
 
 namespace API.Infrastructure.RequestDTOs.Bookings
 {
-    public class BookingGetRequest : BaseGetRequest<BookingGetFilterRequest>
-    { }
+    public class BookingGetRequest : BaseGetRequest
+    {
+        public BookingGetFilterRequest Filter { get; set; }
+    }
 }

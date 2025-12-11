@@ -2,6 +2,8 @@
 
 namespace API.Infrastructure.RequestDTOs.Instructors
 {
-    public class InstructorGetRequest : BaseGetRequest<InstructorGetFilterRequest>
-    { }
+    public class InstructorGetRequest : BaseGetRequest
+    {
+        public InstructorGetFilterRequest Filter { get; set; }
+    }
 }

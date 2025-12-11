@@ -18,154 +18,57 @@ namespace API.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class EquipmentsController : ControllerBase
+    public class EquipmentsController : BaseCrudController<
+        Equipment,
+        IEquipmentServices,
+        EquipmentRequest,
+        EquipmentGetRequest,
+        EquipmentResponse,
+        EquipmentGetResponse>
     {
-        private readonly IEquipmentServices _equipmentService;
+        public EquipmentsController(IEquipmentServices equipmentService) : base(equipmentService) { }
 
-        public EquipmentsController(IEquipmentServices equipmentServices)
+        protected override void PopulateEntity(Equipment equipment, EquipmentRequest model, out string error)
         {
-            _equipmentService = equipmentServices;
+            error = null;
+
+            equipment.StudioId = model.StudioId;
+            equipment.Name = model.Name;
+            equipment.Quantity = model.Quantity;
+            equipment.Condition = model.Condition;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Get([FromQuery] EquipmentGetRequest model)
+        protected override Expression<Func<Equipment, bool>> GetFilter(EquipmentGetRequest model)
         {
-            model.Pager ??= new PagerRequest();
-            model.Pager.Page = model.Pager.Page <= 0
-                                    ? 1
-                                    : model.Pager.Page;
-            model.Pager.PageSize = model.Pager.PageSize <= 0
-                                        ? 10
-                                        : model.Pager.PageSize;
-
-            model.OrderBy ??= "Id";
-            model.OrderBy = typeof(Equipment).GetProperty(model.OrderBy) != null
-                                ? model.OrderBy
-                                : "Id";
-
             model.Filter ??= new EquipmentGetFilterRequest();
 
-            Expression<Func<Equipment, bool>> filter =
-            e =>
-                (string.IsNullOrEmpty(model.Filter.Name) || e.Name.Contains(model.Filter.Name)) &&
-                (!model.Filter.Condition.HasValue || e.Condition.Equals(model.Filter.Condition)) &&
-                (!model.Filter.StudioId.HasValue || e.StudioId.Equals(model.Filter.StudioId));
+            return e =>
+                (string.IsNullOrEmpty(model.Filter.Name) || 
+                    (e.Name != null && e.Name.Contains(model.Filter.Name))) &&
 
-            EquipmentGetResponse response = new EquipmentGetResponse();
+                (!model.Filter.Condition.HasValue || 
+                    e.Condition == model.Filter.Condition.Value) &&
 
-            response.Pager = new PagerResponse();
-            response.Pager.Page = model.Pager.Page;
-            response.Pager.PageSize = model.Pager.PageSize;
-
-            response.OrderBy = model.OrderBy;
-            response.SortAsc = model.SortAsc;
-
-            response.Filter = model.Filter;
-
-            response.Pager.Count = _equipmentService.Count(filter);
-
-            List<Equipment> equipments = await _equipmentService.GetAllAsync(
-                                                                  filter,
-                                                                  model.OrderBy,
-                                                                  model.SortAsc,
-                                                                  model.Pager.Page,
-                                                                  model.Pager.PageSize);
-
-            if (equipments is null || !equipments.Any())
-            {
-                return NotFound("No equipments found matching the given criteria.");
-            }
-
-            response.Items = equipments
-                .Select(e => new EquipmentResponse
-                {
-                    Id = e.Id,
-                    Name = e.Name,
-                    Quantity = e.Quantity,
-                    Condition = e.Condition,
-                    StudioId = e.StudioId,
-                    StudioName = e.Studio.Name
-                })
-                .ToList();
-
-            return Ok(ServiceResult<EquipmentGetResponse>.Success(response));
+                (!model.Filter.StudioId.HasValue || 
+                    e.StudioId == model.Filter.StudioId.Value);
         }
 
-        [HttpGet]
-        [Route("{id}")]
-        public async Task<IActionResult> Get([FromRoute] int id)
+        protected override void PopulageGetResponse(EquipmentGetRequest request, EquipmentGetResponse response)
         {
-            Equipment equipment = await _equipmentService.GetByIdAsync(id);
-
-            if (equipment is null)
-            {
-                return NotFound("Equipment not found.");
-            }
-
-            return Ok(ServiceResult<Equipment>.Success(equipment));
+            response.Filter = request.Filter;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Post([FromBody] EquipmentRequest model)
+        protected override EquipmentResponse ToResponse(Equipment equipment)
         {
-            if (!ModelState.IsValid)
+            return new EquipmentResponse
             {
-                return BadRequest(ServiceResultExtentions<List<Error>>.Failure(null, ModelState));
-            }
-
-            Equipment newEquipment = new Equipment
-            {
-                StudioId = model.StudioId,
-                Name = model.Name,
-                Quantity = model.Quantity,
-                Condition = model.Condition
+                Id = equipment.Id,
+                Name = equipment.Name,
+                Quantity = equipment.Quantity,
+                Condition = equipment.Condition,
+                StudioId = equipment.StudioId,
+                StudioName = equipment.Studio.Name
             };
-
-            await _equipmentService.SaveAsync(newEquipment);
-
-            return Ok(ServiceResult<Equipment>.Success(newEquipment));
-        }
-
-        [HttpPut]
-        [Route("{id}")]
-        public async Task<IActionResult> Put([FromRoute] int id, [FromBody] EquipmentRequest model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ServiceResultExtentions<List<Error>>.Failure(null, ModelState));
-            }
-
-            Equipment equipmentForUpdate = await _equipmentService.GetByIdAsync(id);
-
-            if (equipmentForUpdate is null)
-            {
-                return NotFound("Equipment not found.");
-            }
-
-            equipmentForUpdate.StudioId = model.StudioId;
-            equipmentForUpdate.Name = model.Name;
-            equipmentForUpdate.Quantity = model.Quantity;
-            equipmentForUpdate.Condition = model.Condition;
-
-            await _equipmentService.SaveAsync(equipmentForUpdate);
-
-            return Ok(ServiceResult<Equipment>.Success(equipmentForUpdate));
-        }
-
-        [HttpDelete]
-        [Route("{id}")]
-        public async Task<IActionResult> Delete([FromRoute] int id)
-        {
-            Equipment equipmentForDelete = await _equipmentService.GetByIdAsync(id);
-
-            if (equipmentForDelete is null)
-            {
-                return NotFound("Equipment not found.");
-            }
-
-            await _equipmentService.DeleteAsync(equipmentForDelete);
-
-            return Ok(ServiceResult<Equipment>.Success(equipmentForDelete));
         }
     }
 }

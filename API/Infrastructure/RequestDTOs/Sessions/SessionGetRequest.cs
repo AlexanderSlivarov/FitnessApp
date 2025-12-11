@@ -2,6 +2,8 @@
 
 namespace API.Infrastructure.RequestDTOs.Sessions
 {
-    public class SessionGetRequest : BaseGetRequest<SessionGetFilterRequest>
-    { }
+    public class SessionGetRequest : BaseGetRequest
+    { 
+        public SessionGetFilterRequest Filter { get; set; }
+    }
 }

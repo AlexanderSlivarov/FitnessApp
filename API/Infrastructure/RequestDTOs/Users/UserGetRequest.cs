@@ -2,6 +2,8 @@
 
 namespace API.Infrastructure.RequestDTOs.Users
 {
-    public class UserGetRequest : BaseGetRequest<UserGetFilterRequest>
-    { }
+    public class UserGetRequest : BaseGetRequest
+    { 
+        public UserGetFilterRequest Filter { get; set; }
+    }
 }
