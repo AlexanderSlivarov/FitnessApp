@@ -16,7 +16,7 @@ export default function Subscriptions() {
   const [emptyMessage, setEmptyMessage] = useState("No subscriptions found.");
 
   const [page, setPage] = useState(1);
-  const pageSize = 10;
+  const [pageSize, setPageSize] = useState(10);
   const [count, setCount] = useState(0);
 
   // Filters (no placeholders, always number | '')
@@ -31,7 +31,7 @@ export default function Subscriptions() {
 
   const totalPages = useMemo(
     () => Math.max(1, Math.ceil(count / pageSize)),
-    [count]
+    [count, pageSize]
   );
 
   async function load() {
@@ -68,7 +68,7 @@ export default function Subscriptions() {
 
   useEffect(() => {
     load();
-  }, [page]);
+  }, [page, pageSize]);
 
   useEffect(() => {
     (async () => {
@@ -335,22 +335,43 @@ export default function Subscriptions() {
           </div>
 
           <div className="d-flex justify-content-between align-items-center p-3">
-            <div>Page {page} / {totalPages}</div>
-            <div className="d-flex gap-2">
-              <button
-                className="btn btn-outline-secondary"
-                disabled={page <= 1}
-                onClick={() => setPage((p) => p - 1)}
-              >
-                Prev
-              </button>
-              <button
-                className="btn btn-outline-secondary"
-                disabled={page >= totalPages}
-                onClick={() => setPage((p) => p + 1)}
-              >
-                Next
-              </button>
+            <div className="text-secondary">Page {page} / {totalPages}</div>
+            <div className="d-flex align-items-center gap-3 ms-auto">
+              <div className="d-flex align-items-center gap-2">
+                <label htmlFor="pageSizeSelect" className="text-secondary m-0">Page size</label>
+                <select
+                  id="pageSizeSelect"
+                  className="form-select form-select-sm"
+                  value={pageSize}
+                  onChange={(e) => {
+                    const size = Number(e.target.value);
+                    setPageSize(size);
+                    setPage(1);
+                    setTimeout(() => load(), 0);
+                  }}
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={15}>15</option>
+                  <option value={20}>20</option>
+                </select>
+              </div>
+              <div className="d-flex gap-2">
+                <button
+                  className="btn btn-outline-secondary btn-sm"
+                  disabled={page <= 1}
+                  onClick={() => setPage((p) => p - 1)}
+                >
+                  Prev
+                </button>
+                <button
+                  className="btn btn-outline-secondary btn-sm"
+                  disabled={page >= totalPages}
+                  onClick={() => setPage((p) => p + 1)}
+                >
+                  Next
+                </button>
+              </div>
             </div>
           </div>
         </div>

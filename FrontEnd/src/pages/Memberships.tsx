@@ -17,7 +17,7 @@ export default function Memberships() {
   const [emptyMessage, setEmptyMessage] = useState('No memberships')
 
   const [page, setPage] = useState(1)
-  const [pageSize] = useState(10)
+  const [pageSize, setPageSize] = useState(10)
   const [count, setCount] = useState(0)
 
   const [filterName, setFilterName] = useState('')
@@ -67,7 +67,7 @@ export default function Memberships() {
     }
   }
 
-  useEffect(() => { if (token) load() }, [token, page])
+  useEffect(() => { if (token) load() }, [token, page, pageSize])
 
   const onSearch = (e: FormEvent) => {
     e.preventDefault()
@@ -270,12 +270,28 @@ export default function Memberships() {
 
           {/* Pagination */}
           <div className="d-flex justify-content-between align-items-center p-3">
-            <div>Page {page} / {totalPages}</div>
-            <div className="d-flex gap-2">
-              <button className="btn btn-outline-secondary" disabled={page <= 1}
-                onClick={() => setPage(p => p - 1)}>Prev</button>
-              <button className="btn btn-outline-secondary" disabled={page >= totalPages}
-                onClick={() => setPage(p => p + 1)}>Next</button>
+            <div className="text-secondary">Page {page} / {totalPages}</div>
+            <div className="d-flex align-items-center gap-3 ms-auto">
+              <div className="d-flex align-items-center gap-2">
+                <label htmlFor="pageSizeSelect" className="text-secondary m-0">Page size</label>
+                <select
+                  id="pageSizeSelect"
+                  className="form-select form-select-sm"
+                  value={pageSize}
+                  onChange={(e)=>{ const size = Number(e.target.value); setPageSize(size); setPage(1); setTimeout(()=>load(),0); }}
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={15}>15</option>
+                  <option value={20}>20</option>
+                </select>
+              </div>
+              <div className="d-flex gap-2">
+                <button className="btn btn-outline-secondary btn-sm" disabled={page <= 1}
+                  onClick={() => setPage(p => p - 1)}>Prev</button>
+                <button className="btn btn-outline-secondary btn-sm" disabled={page >= totalPages}
+                  onClick={() => setPage(p => p + 1)}>Next</button>
+              </div>
             </div>
           </div>
 

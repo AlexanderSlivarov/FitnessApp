@@ -3,6 +3,7 @@ using API.Infrastructure.ResponseDTOs.Shared;
 using Common;
 using Common.Entities;
 using Common.Services.Interfaces;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
@@ -71,7 +72,7 @@ namespace API.Controllers
 
             if (entities is null || !entities.Any())
             {
-                return NotFound($"No {typeof(E).Name}s found matching the given criteria.");
+                return NotFound($"No {typeof(E).Name} records found.");
             }
 
             List<EResponse> responseItems = entities
@@ -81,7 +82,7 @@ namespace API.Controllers
 
             if (!responseItems.Any())
             {
-                return NotFound($"No {typeof(E).Name}s found matching the given criteria.");
+                return NotFound($"No {typeof(E).Name} records found.");
             }
 
             response.Items = responseItems;
@@ -97,7 +98,7 @@ namespace API.Controllers
 
             if (entity is null)
             {
-                return NotFound($"No {typeof(E).Name} not found.");
+                return NotFound($"{typeof(E).Name} not found.");
             }
 
             return Ok(ServiceResult<EResponse>.Success(ToResponse(entity)));
@@ -136,7 +137,7 @@ namespace API.Controllers
 
             if (entityForUpdate is null)
             {
-                return NotFound($"No {typeof(E).Name}s not found.");
+                return NotFound($"{typeof(E).Name} not found.");
             }
 
             PopulateEntity(entityForUpdate, model, out string error);
@@ -167,7 +168,7 @@ namespace API.Controllers
 
             if (entityForDelete is null)
             {
-                return NotFound($"No {typeof(E).Name}s not found.");
+                return NotFound($"{typeof(E).Name}s not found.");
             }
 
             await _entityService.DeleteAsync(entityForDelete);

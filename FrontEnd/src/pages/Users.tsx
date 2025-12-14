@@ -25,6 +25,9 @@ export default function Users() {
   const [filterUsername, setFilterUsername] = useState("");
   const [filterFirstName, setFilterFirstName] = useState("");
   const [filterLastName, setFilterLastName] = useState("");
+  const [filterPhoneNumber, setFilterPhoneNumber] = useState("");
+  const [filterGender, setFilterGender] = useState<number | null>(null);
+  const [filterRole, setFilterRole] = useState<number | null>(null);
 
   const [editing, setEditing] = useState<User | null>(null);
 
@@ -52,6 +55,9 @@ export default function Users() {
         username: filterUsername,
         firstName: filterFirstName,
         lastName: filterLastName,
+        phoneNumber: filterPhoneNumber,
+        gender: filterGender,
+        role: filterRole,
         page,
         pageSize,
         sortAsc: true,
@@ -209,7 +215,7 @@ export default function Users() {
           <div className="col-md-3">
             <input
               className="form-control"
-              placeholder="First name"
+              placeholder="First Name"
               value={filterFirstName}
               onChange={(e) => setFilterFirstName(e.target.value)}
             />
@@ -218,11 +224,38 @@ export default function Users() {
           <div className="col-md-3">
             <input
               className="form-control"
-              placeholder="Last name"
+              placeholder="Last Name"
               value={filterLastName}
               onChange={(e) => setFilterLastName(e.target.value)}
             />
           </div>
+
+          <div className="col-md-3">
+            <input
+              className="form-control"
+              placeholder="Phone Number"
+              value={filterPhoneNumber}
+              onChange={(e) => setFilterPhoneNumber(e.target.value)}
+            />
+          </div>
+
+          <div className="col-6 col-md-4">
+							<label className="form-label mb-1 text-secondary">Gender</label>
+							<select className="form-select form-select-sm" value={filterGender ?? ""} onChange={e => setFilterGender(e.target.value === "" ? null : Number(e.target.value))}>						
+								<option value="0">Male</option>
+								<option value="1">Female</option>
+								<option value="2">Other</option>								
+							</select>
+						</div>        
+
+            <div className="col-6 col-md-4">
+							<label className="form-label mb-1 text-secondary">Role</label>
+							<select className="form-select form-select-sm" value={filterRole ?? ""} onChange={e => setFilterRole(e.target.value === "" ? null : Number(e.target.value))}>						
+								<option value="0">Member</option>
+								<option value="1">Instructor</option>		
+                <option value="2">Admin</option>							
+							</select>
+						</div>   
 
           <div className="col-md-3 d-flex gap-2">
             <button className="btn btn-outline-primary btn-sm" type="submit">
@@ -236,6 +269,9 @@ export default function Users() {
                 setFilterUsername("");
                 setFilterFirstName("");
                 setFilterLastName("");
+                setFilterPhoneNumber("");
+                setFilterGender(null); 
+                setFilterRole(null);
                 setPage(1);
                 load();
               }}
@@ -257,9 +293,9 @@ export default function Users() {
                 <tr>
                   <th>Id</th>
                   <th>Username</th>
-                  <th>First</th>
-                  <th>Last</th>
-                  <th>Phone</th>
+                  <th>First Name</th>
+                  <th>Last Name</th>
+                  <th>Phone number</th>
                   <th>Gender</th>
                   <th>Role</th>
                   <th>Actions</th>
@@ -315,25 +351,39 @@ export default function Users() {
           </div>
 
           <div className="d-flex justify-content-between align-items-center p-3">
-            <div>
-              Page {page} / {totalPages}
-            </div>
-            <div className="d-flex gap-2">
-              <button
-                className="btn btn-outline-secondary"
-                disabled={page <= 1}
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-              >
-                Prev
-              </button>
+            <div className="text-secondary">Page {page} / {totalPages}</div>
+            <div className="d-flex align-items-center gap-3 ms-auto">
+              <div className="d-flex align-items-center gap-2">
+                <label htmlFor="pageSizeSelect" className="text-secondary m-0">Page size</label>
+                <select
+                  id="pageSizeSelect"
+                  className="form-select form-select-sm"
+                  value={pageSize}
+                  onChange={(e) => { const size = Number(e.target.value); setPageSize(size); setPage(1); setTimeout(() => load(), 0); }}
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={15}>15</option>
+                  <option value={20}>20</option>
+                </select>
+              </div>
+              <div className="d-flex gap-2">
+                <button
+                  className="btn btn-outline-secondary btn-sm"
+                  disabled={page <= 1}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                >
+                  Prev
+                </button>
 
-              <button
-                className="btn btn-outline-secondary"
-                disabled={page >= totalPages}
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              >
-                Next
-              </button>
+                <button
+                  className="btn btn-outline-secondary btn-sm"
+                  disabled={page >= totalPages}
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                >
+                  Next
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -418,7 +468,7 @@ export default function Users() {
                 </div>
 
                 <div className="mb-3">
-                  <label className="form-label">Phone</label>
+                  <label className="form-label">PhoneNumber</label>
                   <input
                     className="form-control"
                     value={form.phoneNumber}

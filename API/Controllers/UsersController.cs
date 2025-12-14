@@ -69,10 +69,10 @@ namespace API.Controllers
                     (u.PhoneNumber != null && u.PhoneNumber.Contains(model.Filter.PhoneNumber))) &&
 
                 (!model.Filter.Role.HasValue || 
-                    (u.Role.HasValue && u.Role.Value == model.Filter.Role.Value) &&
+                    (u.Role.HasValue && u.Role.Value == model.Filter.Role.Value)) &&
 
                 (!model.Filter.Gender.HasValue || 
-                    (u.Gender.HasValue && u.Gender.Value == model.Filter.Gender.Value)));
+                    (u.Gender.HasValue && u.Gender.Value == model.Filter.Gender.Value));
         }
         protected override void PopulageGetResponse(UserGetRequest request, UserGetResponse response)
         {
