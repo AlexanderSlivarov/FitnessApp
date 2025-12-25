@@ -67,7 +67,7 @@ namespace API.Controllers
                 Quantity = equipment.Quantity,
                 Condition = equipment.Condition,
                 StudioId = equipment.StudioId,
-                StudioName = equipment.Studio.Name
+                StudioName = equipment.Studio?.Name
             };
         }
     }

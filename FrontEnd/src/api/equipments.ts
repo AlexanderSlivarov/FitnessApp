@@ -6,7 +6,7 @@ export interface Equipment {
   studioName?: string;
   name: string;
   quantity: number;
-  condition: number; // enum backend
+  condition: number;   
 }
 
 export interface EquipmentFilter {

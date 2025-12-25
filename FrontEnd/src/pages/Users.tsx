@@ -16,7 +16,7 @@ export default function Users() {
   const [items, setItems] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [emptyMessage, setEmptyMessage] = useState("No users");
+  const [emptyMessage, setEmptyMessage] = useState("");
 
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -68,7 +68,7 @@ export default function Users() {
       setItems(data?.items || []);
       setCount(data?.pager?.count || data?.items?.length || 0);
     } catch (e: any) {
-      const msg = e?.message || "No users";
+      const msg = e?.message || null;
       setEmptyMessage(msg);
       setError(null);
     } finally {
@@ -310,10 +310,7 @@ export default function Users() {
                     </td>
                   </tr>
                 ) : items.length === 0 ? (
-                  <tr>
-                    <td colSpan={8} className="text-center p-4">
-                      {emptyMessage}
-                    </td>
+                  <tr>                    
                   </tr>
                 ) : (
                   items.map((u) => (

@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace API.Controllers
 {
@@ -27,12 +28,9 @@ namespace API.Controllers
         InstructorGetRequest,
         InstructorResponse,
         InstructorGetResponse>
-    {
-        private readonly IUserServices _userService;
-        public InstructorsController(IInstructorServices instructorService, IUserServices userService) : base(instructorService) 
-        {
-            _userService = userService;
-        }
+    {       
+        public InstructorsController(IInstructorServices instructorService) : base(instructorService) 
+        { }
 
         protected override void PopulateEntity(Instructor instructor, InstructorRequest model, out string error)
         {
@@ -40,9 +38,9 @@ namespace API.Controllers
 
             instructor.UserId = model.UserId;
             instructor.Bio = model.Bio;
-            instructor.ExperienceYears = model.ExperienceYears;
+            instructor.ExperienceYears = model.ExperienceYears;          
         }
-
+        
         protected override Expression<Func<Instructor, bool>> GetFilter(InstructorGetRequest model)
         {
             model.Filter ??= new InstructorGetFilterRequest();

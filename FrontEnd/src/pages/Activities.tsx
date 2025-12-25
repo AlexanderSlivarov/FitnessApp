@@ -5,7 +5,7 @@ export default function Activities(){
 	const [items, setItems] = useState<Activity[]>([])
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState<string | null>(null)
-	const [emptyMessage, setEmptyMessage] = useState<string>('No activities')
+	const [emptyMessage, setEmptyMessage] = useState<string>()
 	const [page, setPage] = useState(1)
 	const [pageSize, setPageSize] = useState(10)
 	const [count, setCount] = useState(0)
@@ -23,7 +23,7 @@ export default function Activities(){
 			setCount(data.pager?.count || (data.items?.length ?? 0))
 		}catch(e:any){
 			const backendMsg = (e?.errors?.[0]?.message) ?? (e?.data?.message) ?? (typeof e?.data === 'string' ? e.data : undefined) ?? e?.message
-			setEmptyMessage(String(backendMsg || 'No activities found matching the given criteria.'))
+			setEmptyMessage(String(backendMsg))
 			setError(null)
 		}finally{
 			setLoading(false)
@@ -115,7 +115,7 @@ export default function Activities(){
 								{loading ? (
 									<tr><td colSpan={4} className="text-center p-4">Loading...</td></tr>
 								) : items.length === 0 ? (
-									<tr><td colSpan={4} className="text-center p-4">{emptyMessage}</td></tr>
+									<tr></tr>
 								) : (
 									items.map(a => (
 										<tr key={a.id}>

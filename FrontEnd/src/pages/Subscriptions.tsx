@@ -13,7 +13,7 @@ export default function Subscriptions() {
   const [items, setItems] = useState<Subscription[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [emptyMessage, setEmptyMessage] = useState("No subscriptions found.");
+  const [emptyMessage, setEmptyMessage] = useState();
 
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -54,9 +54,7 @@ export default function Subscriptions() {
     } catch (e: any) {
       const msg =
         e?.errors?.[0]?.message ||
-        e?.data?.message ||
-        e?.message ||
-        "No subscriptions found.";
+        e?.data?.message;
 
       setEmptyMessage(msg);
       setItems([]);
@@ -295,10 +293,7 @@ export default function Subscriptions() {
                     </td>
                   </tr>
                 ) : items.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="text-center p-4">
-                      {emptyMessage}
-                    </td>
+                  <tr>                    
                   </tr>
                 ) : (
                   items.map((s) => (

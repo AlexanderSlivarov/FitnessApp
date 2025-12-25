@@ -7,7 +7,7 @@ export default function Bookings(){
 	const [items, setItems] = useState<Booking[]>([])
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState<string | null>(null)
-	const [emptyMessage, setEmptyMessage] = useState<string>('No bookings found matching the given criteria.')
+	const [emptyMessage, setEmptyMessage] = useState<string>()
 	const [page, setPage] = useState(1)
 	const [pageSize, setPageSize] = useState(10)
 	const [count, setCount] = useState(0)
@@ -51,7 +51,7 @@ export default function Bookings(){
 				?? (typeof e?.data === 'string' ? e.data : undefined)
 				?? e?.message
 
-			setEmptyMessage(String(backendMsg || 'No bookings found matching the criteria.'))
+			setEmptyMessage(backendMsg)
 			setError(null)
 		}finally{
 			setLoading(false)
@@ -285,7 +285,7 @@ export default function Bookings(){
 								{loading ? (
 									<tr><td colSpan={7} className="text-center p-4">Loading...</td></tr>
 								) : items.length === 0 ? (
-									<tr><td colSpan={7} className="text-center p-4">{emptyMessage}</td></tr>
+									<tr></tr>
 								) : (
 									items.map(b => (
 										<tr key={b.id}>

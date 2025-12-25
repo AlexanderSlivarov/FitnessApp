@@ -68,22 +68,12 @@ namespace API.Controllers
                                                        model.OrderBy,
                                                        model.SortAsc,
                                                        model.Pager.Page,
-                                                       model.Pager.PageSize);
-
-            if (entities is null || !entities.Any())
-            {
-                return NotFound($"No {typeof(E).Name} records found.");
-            }
+                                                       model.Pager.PageSize);            
 
             List<EResponse> responseItems = entities
                 .Select(e => ToResponse(e))
                 .Where(dto => dto is not null)
-                .ToList();
-
-            if (!responseItems.Any())
-            {
-                return NotFound($"No {typeof(E).Name} records found.");
-            }
+                .ToList();            
 
             response.Items = responseItems;
 

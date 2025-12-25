@@ -42,13 +42,13 @@ export async function getUsers(params: {
     OrderBy: orderBy,
     SortAsc: String(sortAsc),
     'Pager.Page': String(page),
-    'Pager.PageSize': String(pageSize),
-    'Filter.Username': username,
+    'Pager.PageSize': String(pageSize),    
+    'Filter.Username': username,    
     'Filter.FirstName': firstName,
     'Filter.LastName': lastName,
     'Filter.PhoneNumber': phoneNumber,
-  })
-
+  })  
+  
   if (gender !== null) {
     qs.append('Filter.Gender', String(gender))
   }

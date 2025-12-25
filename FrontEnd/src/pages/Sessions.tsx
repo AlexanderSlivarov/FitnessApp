@@ -14,9 +14,7 @@ export default function Sessions() {
   const [items, setItems] = useState<Session[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [emptyMessage, setEmptyMessage] = useState(
-    "No sessions found matching the given criteria."
-  );
+  const [emptyMessage, setEmptyMessage] = useState();  
 
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -63,7 +61,7 @@ export default function Sessions() {
     } catch (e: any) {
       setItems([]);
       setCount(0);
-      setEmptyMessage(e?.data?.message || e?.message || "No sessions found.");
+      setEmptyMessage(e?.data?.message || e?.message);
     } finally {
       setLoading(false);
     }
@@ -344,17 +342,16 @@ export default function Sessions() {
                     <td colSpan={11} className="text-center p-4">Loading...</td>
                   </tr>
                 ) : items.length === 0 ? (
-                  <tr>
-                    <td colSpan={11} className="text-center p-4">{emptyMessage}</td>
+                  <tr>                   
                   </tr>
                 ) : (
                   items.map((s) => (
                     <tr key={s.id}>
                       <td>{s.id}</td>
                       <td>{s.name}</td>
-                      <td>{s.activityName ?? s.activityId}</td>
-                      <td>{s.instructorName ?? s.instructorId}</td>
-                      <td>{s.studioName ?? s.studioId}</td>
+                      <td>{s.activityName}</td>
+                      <td>{s.instructorName}</td>
+                      <td>{s.studioName}</td>
                       <td>{s.date}</td>
                       <td>{s.startTime}</td>
                       <td>{s.duration}</td>

@@ -14,7 +14,7 @@ export default function Memberships() {
   const [items, setItems] = useState<Membership[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [emptyMessage, setEmptyMessage] = useState('No memberships')
+  const [emptyMessage, setEmptyMessage] = useState()
 
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
@@ -60,7 +60,7 @@ export default function Memberships() {
 
     } catch (e: any) {
       const backendMsg = (e?.errors?.[0]?.message) ?? (e?.data?.message) ?? (typeof e?.data === 'string' ? e.data : undefined) ?? e?.message
-      setEmptyMessage(String(backendMsg || 'No membership found matching the given criteria.'))
+      setEmptyMessage(backendMsg)
       setError(null)
     } finally {
       setLoading(false)
@@ -232,7 +232,7 @@ export default function Memberships() {
                 {loading ? (
                   <tr><td colSpan={7} className="text-center p-4">Loading...</td></tr>
                 ) : items.length === 0 ? (
-                  <tr><td colSpan={7} className="text-center p-4">{emptyMessage}</td></tr>
+                  <tr></tr>
                 ) : (
                   items.map(m => (
                     <tr key={m.id}>

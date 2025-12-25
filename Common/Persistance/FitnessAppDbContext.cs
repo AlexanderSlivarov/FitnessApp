@@ -43,6 +43,16 @@ namespace Common.Persistance
                
                 entity.Property(u => u.CreatedAt)
                       .HasDefaultValueSql("GETUTCDATE()");
+
+                entity.HasMany(u => u.Bookings)
+                      .WithOne(b => b.User)
+                      .HasForeignKey(b => b.UserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasMany(u => u.Subscriptions)
+                      .WithOne(s => s.User)
+                      .HasForeignKey(b => b.UserId)
+                      .OnDelete(DeleteBehavior.Restrict);
             });
             
             modelBuilder.Entity<User>().HasData(new User
@@ -60,6 +70,26 @@ namespace Common.Persistance
 
             #endregion
 
+            #region Instructor
+
+            modelBuilder.Entity<Instructor>(entity =>
+            {
+                entity.HasKey(i => i.Id);
+
+                entity.Property(i => i.UserId).IsRequired();
+                entity.Property(i => i.Bio).IsRequired();
+                entity.Property(i => i.ExperienceYears).IsRequired();
+
+                entity.HasIndex(i => i.UserId).IsUnique();
+
+                entity.HasOne(i => i.User)
+                      .WithOne()
+                      .HasForeignKey<Instructor>(i => i.UserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            #endregion
+
             #region Activity
 
             modelBuilder.Entity<Activity>(entity =>
@@ -68,6 +98,64 @@ namespace Common.Persistance
 
                 entity.Property(a => a.Name).IsRequired();
                 entity.Property(a => a.Description).IsRequired();
+            });
+
+            #endregion
+
+            #region Studio
+
+            modelBuilder.Entity<Studio>(entity =>
+            {
+                entity.HasKey(s => s.Id);
+
+                entity.Property(s => s.Name).IsRequired();
+                entity.Property(s => s.Location).IsRequired();
+                entity.Property(s => s.Capacity).IsRequired();
+            });
+
+            #endregion
+
+            #region Membership
+
+            modelBuilder.Entity<Membership>(entity =>
+            {
+                entity.HasKey(m => m.Id);
+
+                entity.Property(m => m.Name).IsRequired();
+                entity.Property(m => m.Price).IsRequired();
+                entity.Property(m => m.Duration).IsRequired();
+                entity.Property(m => m.Description).IsRequired();
+
+                entity.Property(m => m.DurationType)
+                      .HasConversion<string>()
+                      .IsRequired();
+
+                entity.HasMany(m => m.Subscriptions)
+                      .WithOne(s => s.Membership)
+                      .HasForeignKey(s => s.MembershipId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            #endregion
+
+            #region Equipment
+
+            modelBuilder.Entity<Equipment>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.StudioId).IsRequired();
+                entity.Property(e => e.Name).IsRequired();
+                entity.Property(e => e.Quantity).IsRequired();
+
+                entity.Property(e => e.Condition)
+                      .HasConversion<string>()
+                      .IsRequired();
+
+                entity.HasOne(e => e.Studio)
+                       .WithMany()
+                       .HasForeignKey(e => e.StudioId)
+                       .OnDelete(DeleteBehavior.Restrict);
             });
 
             #endregion
@@ -102,84 +190,16 @@ namespace Common.Persistance
                 entity.HasOne(s => s.Activity)
                       .WithMany()
                       .HasForeignKey(s => s.ActivityId)
-                      .OnDelete(DeleteBehavior.Restrict);                
-            });
+                      .OnDelete(DeleteBehavior.Restrict);
 
-            #endregion
-
-            #region Instructor
-
-            modelBuilder.Entity<Instructor>(entity =>
-            {
-                entity.HasKey(i => i.Id);
-
-                entity.Property(i => i.UserId).IsRequired();
-                entity.Property(i => i.Bio).IsRequired();
-                entity.Property(i => i.ExperienceYears).IsRequired();
-
-                entity.HasIndex(i => i.UserId).IsUnique();
-
-                entity.HasOne(i => i.User)
-                      .WithOne()
-                      .HasForeignKey<Instructor>(i => i.UserId)
+                entity.HasMany(s => s.Bookings)
+                      .WithOne(b => b.Session)
+                      .HasForeignKey(b => b.SessionId)
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
-            #endregion
-
-            #region Studio
-
-            modelBuilder.Entity<Studio>(entity =>
-            {
-                entity.HasKey(s => s.Id);
-
-                entity.Property(s => s.Name).IsRequired();
-                entity.Property(s => s.Location).IsRequired();
-                entity.Property(s => s.Capacity).IsRequired();
-            });
-
-            #endregion
-
-            #region Membership
-
-            modelBuilder.Entity<Membership>(entity =>
-            {
-                entity.HasKey(m => m.Id);
-
-                entity.Property(m => m.Name).IsRequired();
-                entity.Property(m => m.Price).IsRequired();
-                entity.Property(m => m.Duration).IsRequired();
-                entity.Property(m => m.Description).IsRequired();
-
-                entity.Property(m => m.DurationType)
-                      .HasConversion<string>()
-                      .IsRequired();
-            });
-
-            #endregion
-
-            #region Equipment
-
-            modelBuilder.Entity<Equipment>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-
-                entity.Property(e => e.StudioId).IsRequired();
-                entity.Property(e => e.Name).IsRequired();
-                entity.Property(e => e.Quantity).IsRequired();
-
-                entity.Property(e => e.Condition)
-                      .HasConversion<string>()
-                      .IsRequired();
-
-                entity.HasOne(e => e.Studio)
-                       .WithMany()
-                       .HasForeignKey(e => e.StudioId)
-                       .OnDelete(DeleteBehavior.Restrict);                     
-            });
-
-            #endregion
-
+            #endregion                  
+         
             #region Booking 
 
             modelBuilder.Entity<Booking>(entity =>
@@ -232,12 +252,12 @@ namespace Common.Persistance
                       .HasDefaultValueSql("GETUTCDATE()");
 
                 entity.HasOne(s => s.User)
-                      .WithMany()
+                      .WithMany(u => u.Subscriptions)
                       .HasForeignKey(s => s.UserId)
                       .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(s => s.Membership)
-                      .WithMany()
+                      .WithMany(u => u.Subscriptions)
                       .HasForeignKey(s => s.MembershipId)
                       .OnDelete(DeleteBehavior.Restrict);
             });

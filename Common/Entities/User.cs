@@ -23,6 +23,9 @@ namespace Common.Entities
         public DateTime CreatedAt { get; set; }
 
         [JsonIgnore]
-        public virtual List<Booking> Bookings { get; set; }
+        public virtual List<Booking> Bookings { get; set; } = new();
+
+        [JsonIgnore]
+        public virtual List<Subscription> Subscriptions { get; set; } = new();
     }
 }

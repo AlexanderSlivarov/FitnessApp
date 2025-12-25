@@ -5,7 +5,7 @@ export default function Studios(){
     const [items, setItems] = useState<Studio[]>([])
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    const [emptyMessage, setEmptyMessage] = useState<string>('No studios')
+    const [emptyMessage, setEmptyMessage] = useState<string>()
     const [page, setPage] = useState(1)
     const [pageSize, setPageSize] = useState(10)
     const [count, setCount] = useState(0)
@@ -47,7 +47,7 @@ export default function Studios(){
 
             const msg = String(backendMsg || '')
 
-            setEmptyMessage(msg || 'No studios found matching the given criteria.')
+            setEmptyMessage(msg)
             setError(null)
         }
         finally{ setLoading(false) }
@@ -216,7 +216,7 @@ export default function Studios(){
                                 {loading ? (
                                     <tr><td colSpan={5} className="text-center p-4">Loading...</td></tr>
                                 ) : items.length === 0 ? (
-                                    <tr><td colSpan={5} className="text-center p-4">{emptyMessage}</td></tr>
+                                    <tr></tr>
                                 ) : (
                                     items.map(s => (
                                         <tr key={s.id}>

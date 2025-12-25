@@ -12,9 +12,7 @@ export default function Instructors() {
   const [items, setItems] = useState<Instructor[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [emptyMessage, setEmptyMessage] = useState(
-    "No instructors found matching the given criteria."
-  );
+  const [emptyMessage, setEmptyMessage] = useState(""); 
 
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -272,10 +270,7 @@ export default function Instructors() {
                     </td>
                   </tr>
                 ) : items.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="text-center p-4">
-                      {emptyMessage}
-                    </td>
+                  <tr>                    
                   </tr>
                 ) : (
                   items.map((s) => (
