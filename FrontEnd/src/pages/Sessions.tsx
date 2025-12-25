@@ -14,7 +14,8 @@ export default function Sessions() {
   const [items, setItems] = useState<Session[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [emptyMessage, setEmptyMessage] = useState();  
+  const [emptyMessage, setEmptyMessage] = useState();
+ 
 
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -59,9 +60,9 @@ export default function Sessions() {
       setItems(list);
       setCount(data?.pager?.count ?? list.length);
     } catch (e: any) {
-      setItems([]);
-      setCount(0);
-      setEmptyMessage(e?.data?.message || e?.message);
+      setItems([])
+      setCount(0)
+      setError(null)
     } finally {
       setLoading(false);
     }
@@ -341,17 +342,14 @@ export default function Sessions() {
                   <tr>
                     <td colSpan={11} className="text-center p-4">Loading...</td>
                   </tr>
-                ) : items.length === 0 ? (
-                  <tr>                   
-                  </tr>
                 ) : (
                   items.map((s) => (
                     <tr key={s.id}>
                       <td>{s.id}</td>
                       <td>{s.name}</td>
-                      <td>{s.activityName}</td>
-                      <td>{s.instructorName}</td>
-                      <td>{s.studioName}</td>
+                      <td>{s.activityName ?? s.activityId}</td>
+                      <td>{s.instructorName ?? s.instructorId}</td>
+                      <td>{s.studioName ?? s.studioId}</td>
                       <td>{s.date}</td>
                       <td>{s.startTime}</td>
                       <td>{s.duration}</td>

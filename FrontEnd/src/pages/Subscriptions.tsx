@@ -52,13 +52,9 @@ export default function Subscriptions() {
       setItems(data?.items ?? []);
       setCount(data?.pager?.count ?? data?.items?.length ?? 0);
     } catch (e: any) {
-      const msg =
-        e?.errors?.[0]?.message ||
-        e?.data?.message;
-
-      setEmptyMessage(msg);
-      setItems([]);
-      setCount(0);
+      setItems([])
+      setCount(0)
+      setError(null)
     }
 
     setLoading(false);
@@ -292,10 +288,7 @@ export default function Subscriptions() {
                       Loading…
                     </td>
                   </tr>
-                ) : items.length === 0 ? (
-                  <tr>                    
-                  </tr>
-                ) : (
+                )  : (
                   items.map((s) => (
                     <tr key={s.id}>
                       <td>{s.id}</td>

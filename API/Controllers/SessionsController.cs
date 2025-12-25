@@ -79,7 +79,10 @@ namespace API.Controllers
                 InstructorId = session.InstructorId,
                 StudioId = session.StudioId,
                 ActivityId = session.ActivityId,
-                InstructorName = session.Instructor.User.FirstName + " " + session.Instructor.User.LastName,
+                InstructorName = session.Instructor?.User != null
+                                                          ? session.Instructor.User.FirstName 
+                                                          + " " + session.Instructor.User.LastName
+                                                          : null,
                 StudioName = session.Studio?.Name,
                 ActivityName = session.Activity?.Name,
                 Name = session.Name,

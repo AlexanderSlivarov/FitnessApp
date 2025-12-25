@@ -7,7 +7,7 @@ export default function Bookings(){
 	const [items, setItems] = useState<Booking[]>([])
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState<string | null>(null)
-	const [emptyMessage, setEmptyMessage] = useState<string>()
+	const [emptyMessage, setEmptyMessage] = useState()
 	const [page, setPage] = useState(1)
 	const [pageSize, setPageSize] = useState(10)
 	const [count, setCount] = useState(0)
@@ -43,16 +43,8 @@ export default function Bookings(){
 			setCount(count)
 		}catch(e:any){
 			setItems([])
-			setCount(0)
-
-			const backendMsg =
-				(e?.errors?.[0]?.message)
-				?? (e?.data?.message)
-				?? (typeof e?.data === 'string' ? e.data : undefined)
-				?? e?.message
-
-			setEmptyMessage(backendMsg)
-			setError(null)
+            setCount(0)
+            setError(null)
 		}finally{
 			setLoading(false)
 		}
@@ -284,9 +276,8 @@ export default function Bookings(){
 							<tbody>
 								{loading ? (
 									<tr><td colSpan={7} className="text-center p-4">Loading...</td></tr>
-								) : items.length === 0 ? (
-									<tr></tr>
-								) : (
+								) 									
+								 : (
 									items.map(b => (
 										<tr key={b.id}>
 											<td>{b.id}</td>

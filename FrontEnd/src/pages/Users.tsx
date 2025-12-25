@@ -16,7 +16,7 @@ export default function Users() {
   const [items, setItems] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [emptyMessage, setEmptyMessage] = useState("");
+  const [emptyMessage, setEmptyMessage] = useState();
 
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -68,8 +68,9 @@ export default function Users() {
       setItems(data?.items || []);
       setCount(data?.pager?.count || data?.items?.length || 0);
     } catch (e: any) {
-      const msg = e?.message || null;
-      setEmptyMessage(msg);
+      const msg = e?.message;
+      setItems([]);  
+      setCount(0);
       setError(null);
     } finally {
       setLoading(false);
@@ -303,47 +304,44 @@ export default function Users() {
               </thead>
 
               <tbody>
-                {loading ? (
-                  <tr>
-                    <td colSpan={8} className="text-center p-4">
-                      Loading...
-                    </td>
-                  </tr>
-                ) : items.length === 0 ? (
-                  <tr>                    
-                  </tr>
-                ) : (
-                  items.map((u) => (
-                    <tr key={u.id}>
-                      <td>{u.id}</td>
-                      <td>{u.username}</td>
-                      <td>{u.firstName}</td>
-                      <td>{u.lastName}</td>
-                      <td>{u.phoneNumber}</td>
-                      <td>{u.genderName}</td>
-                      <td>{u.roleName}</td>
+  {loading && (
+    <tr>
+      <td colSpan={8} className="text-center p-4">
+        Loading...
+      </td>
+    </tr>
+  )}
 
-                      <td className="d-flex gap-2">
-                        <button
-                          className="btn btn-sm btn-outline-secondary"
-                          data-bs-toggle="modal"
-                          data-bs-target="#userModal"
-                          onClick={() => startEdit(u)}
-                        >
-                          <i className="fas fa-edit"></i>
-                        </button>
-
-                        <button
-                          className="btn btn-sm btn-outline-danger"
-                          onClick={() => confirmRemove(u)}
-                        >
-                          <i className="fas fa-trash"></i>
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
+  {!loading && items.length > 0 &&
+    items.map((u) => (
+      <tr key={u.id}>
+        <td>{u.id}</td>
+        <td>{u.username}</td>
+        <td>{u.firstName}</td>
+        <td>{u.lastName}</td>
+        <td>{u.phoneNumber}</td>
+        <td>{u.genderName}</td>
+        <td>{u.roleName}</td>
+        <td className="d-flex gap-2">
+          <button
+            className="btn btn-sm btn-outline-secondary"
+            data-bs-toggle="modal"
+            data-bs-target="#userModal"
+            onClick={() => startEdit(u)}
+          >
+            <i className="fas fa-edit"></i>
+          </button>
+          <button
+            className="btn btn-sm btn-outline-danger"
+            onClick={() => confirmRemove(u)}
+          >
+            <i className="fas fa-trash"></i>
+          </button>
+        </td>
+      </tr>
+    ))
+  }
+</tbody>
             </table>
           </div>
 

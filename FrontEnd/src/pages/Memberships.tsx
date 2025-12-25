@@ -59,8 +59,8 @@ export default function Memberships() {
       setCount(data?.pager?.count || data?.items?.length || 0)
 
     } catch (e: any) {
-      const backendMsg = (e?.errors?.[0]?.message) ?? (e?.data?.message) ?? (typeof e?.data === 'string' ? e.data : undefined) ?? e?.message
-      setEmptyMessage(backendMsg)
+      setItems([])
+      setCount(0)
       setError(null)
     } finally {
       setLoading(false)
@@ -231,8 +231,6 @@ export default function Memberships() {
               <tbody>
                 {loading ? (
                   <tr><td colSpan={7} className="text-center p-4">Loading...</td></tr>
-                ) : items.length === 0 ? (
-                  <tr></tr>
                 ) : (
                   items.map(m => (
                     <tr key={m.id}>
@@ -320,7 +318,7 @@ export default function Memberships() {
 
                 <div className="mb-3">
                   <label className="form-label">Price</label>
-                  <input className="form-control" type="number" required min={0}
+                  <input className="form-control" type="number" required min={0} step = "0.01"
                     value={form.price ?? ''}
                     onChange={e => {
                       const v = e.target.value

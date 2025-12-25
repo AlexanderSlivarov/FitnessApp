@@ -4,8 +4,7 @@ import { Activity, createActivity, deleteActivity, getActivities, updateActivity
 export default function Activities(){
 	const [items, setItems] = useState<Activity[]>([])
 	const [loading, setLoading] = useState(false)
-	const [error, setError] = useState<string | null>(null)
-	const [emptyMessage, setEmptyMessage] = useState<string>()
+	const [error, setError] = useState<string | null>(null)	
 	const [page, setPage] = useState(1)
 	const [pageSize, setPageSize] = useState(10)
 	const [count, setCount] = useState(0)
@@ -22,9 +21,9 @@ export default function Activities(){
 			setItems(data.items || [])
 			setCount(data.pager?.count || (data.items?.length ?? 0))
 		}catch(e:any){
-			const backendMsg = (e?.errors?.[0]?.message) ?? (e?.data?.message) ?? (typeof e?.data === 'string' ? e.data : undefined) ?? e?.message
-			setEmptyMessage(String(backendMsg))
-			setError(null)
+			setItems([])
+            setCount(0)
+            setError(null)
 		}finally{
 			setLoading(false)
 		}
@@ -113,9 +112,7 @@ export default function Activities(){
 							</thead>
 							<tbody>
 								{loading ? (
-									<tr><td colSpan={4} className="text-center p-4">Loading...</td></tr>
-								) : items.length === 0 ? (
-									<tr></tr>
+									<tr><td colSpan={4} className="text-center p-4">Loading...</td></tr>								
 								) : (
 									items.map(a => (
 										<tr key={a.id}>

@@ -38,18 +38,7 @@ export default function Studios(){
         }catch(e:any){
             setItems([])
             setCount(0)
-
-            const backendMsg =
-                (e?.errors?.[0]?.message)
-                ?? (e?.data?.message)
-                ?? (typeof e?.data === 'string' ? e.data : undefined)
-                ?? e?.message
-
-            const msg = String(backendMsg || '')
-
-            setEmptyMessage(msg)
-            setError(null)
-        }
+            setError(null)        }
         finally{ setLoading(false) }
     }
 
@@ -215,8 +204,6 @@ export default function Studios(){
                             <tbody>
                                 {loading ? (
                                     <tr><td colSpan={5} className="text-center p-4">Loading...</td></tr>
-                                ) : items.length === 0 ? (
-                                    <tr></tr>
                                 ) : (
                                     items.map(s => (
                                         <tr key={s.id}>

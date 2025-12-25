@@ -17,7 +17,7 @@ namespace Common.Persistance
         public DbSet<Membership> Memberships { get; set; }
         public DbSet<Equipment> Equipments { get; set; }
         public DbSet<Booking> Bookings { get; set; }
-        public DbSet<Subscription> Subscriptions { get; set; } 
+        public DbSet<Subscription> Subscriptions { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             #region User
@@ -36,11 +36,11 @@ namespace Common.Persistance
                 entity.Property(u => u.Gender)
                       .HasConversion<string>()
                       .IsRequired(false);
-               
+
                 entity.Property(u => u.Role)
-                      .HasConversion<string>()                  
+                      .HasConversion<string>()
                       .IsRequired();
-               
+
                 entity.Property(u => u.CreatedAt)
                       .HasDefaultValueSql("GETUTCDATE()");
 
@@ -54,7 +54,7 @@ namespace Common.Persistance
                       .HasForeignKey(b => b.UserId)
                       .OnDelete(DeleteBehavior.Restrict);
             });
-            
+
             modelBuilder.Entity<User>().HasData(new User
             {
                 Id = 1,
@@ -64,7 +64,7 @@ namespace Common.Persistance
                 FirstName = "System",
                 LastName = "Administrator",
                 PhoneNumber = "0876609216",
-                Role = UserRole.Admin,                
+                Role = UserRole.Admin,
                 CreatedAt = new DateTime(2025, 11, 27, 0, 38, 0, DateTimeKind.Utc)
             });
 
@@ -173,7 +173,7 @@ namespace Common.Persistance
                 entity.Property(s => s.Name).IsRequired();
                 entity.Property(s => s.StartTime).IsRequired();
                 entity.Property(s => s.Duration).IsRequired();
-                entity.Property(s => s.Date).IsRequired();        
+                entity.Property(s => s.Date).IsRequired();
                 entity.Property(s => s.MinParticipants).IsRequired();
                 entity.Property(s => s.Difficulty).IsRequired();
 
@@ -198,8 +198,8 @@ namespace Common.Persistance
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
-            #endregion                  
-         
+            #endregion
+
             #region Booking 
 
             modelBuilder.Entity<Booking>(entity =>

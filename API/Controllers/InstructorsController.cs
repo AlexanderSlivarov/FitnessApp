@@ -28,9 +28,12 @@ namespace API.Controllers
         InstructorGetRequest,
         InstructorResponse,
         InstructorGetResponse>
-    {       
-        public InstructorsController(IInstructorServices instructorService) : base(instructorService) 
-        { }
+    {
+        private readonly IUserServices _userService;
+        public InstructorsController(IInstructorServices instructorService, IUserServices userService) : base(instructorService) 
+        {
+            _userService = userService;
+        }
 
         protected override void PopulateEntity(Instructor instructor, InstructorRequest model, out string error)
         {
@@ -38,9 +41,9 @@ namespace API.Controllers
 
             instructor.UserId = model.UserId;
             instructor.Bio = model.Bio;
-            instructor.ExperienceYears = model.ExperienceYears;          
+            instructor.ExperienceYears = model.ExperienceYears;             
         }
-        
+
         protected override Expression<Func<Instructor, bool>> GetFilter(InstructorGetRequest model)
         {
             model.Filter ??= new InstructorGetFilterRequest();

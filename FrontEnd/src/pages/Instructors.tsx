@@ -12,7 +12,7 @@ export default function Instructors() {
   const [items, setItems] = useState<Instructor[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [emptyMessage, setEmptyMessage] = useState(""); 
+  const [emptyMessage, setEmptyMessage] = useState();
 
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -70,14 +70,9 @@ export default function Instructors() {
       setItems(list);
       setCount(data?.pager?.count ?? list.length);
     } catch (e: any) {
-      setItems([]);
-      setCount(0);
-      const msg =
-        e?.errors?.[0]?.message ||
-        e?.data?.message ||
-        (typeof e?.data === "string" ? e.data : undefined) ||
-        e?.message;
-      setEmptyMessage(msg || "No instructors found.");
+      setItems([])
+      setCount(0)
+      setError(null)
     } finally {
       setLoading(false);
     }
@@ -269,10 +264,8 @@ export default function Instructors() {
                       Loading...
                     </td>
                   </tr>
-                ) : items.length === 0 ? (
-                  <tr>                    
-                  </tr>
-                ) : (
+                )                   
+                 : (
                   items.map((s) => (
                     <tr key={s.id}>
                       <td>{s.id}</td>
@@ -405,11 +398,16 @@ export default function Instructors() {
                   <label className="form-label">Bio</label>
                   <textarea
                     className="form-control"
+                    minLength={10}
+                    required
                     value={form.bio}
                     onChange={(e) =>
                       setForm((f) => ({ ...f, bio: e.target.value }))
                     }
                   />
+                  <div className="invalid-feedback">
+                    Bio must be at least 10 characters.
+                  </div>
                 </div>
               </div>
 

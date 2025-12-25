@@ -6,7 +6,7 @@ export default function Equipments(){
 	const [items, setItems] = useState<Equipment[]>([])
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState<string | null>(null)
-	const [emptyMessage, setEmptyMessage] = useState<string>()
+	const [emptyMessage, setEmptyMessage] = useState()
 	const [page, setPage] = useState(1)
 	const [pageSize, setPageSize] = useState(10)
 	const [count, setCount] = useState(0)
@@ -29,11 +29,8 @@ export default function Equipments(){
 			setCount(count)
 		}catch(e:any){
 			setItems([])
-			setCount(0)
-			const backendMsg = (e?.errors?.[0]?.message) ?? (e?.data?.message) ?? e?.message
-			const msg = String(backendMsg || '')
-			setEmptyMessage(msg)
-			setError(null)
+            setCount(0)
+            setError(null)
 		}finally{ setLoading(false) }
 	}
 
@@ -129,17 +126,14 @@ export default function Equipments(){
 							<tbody>
 								{loading ? (
 									<tr><td colSpan={6} className="text-center p-4">Loading...</td></tr>
-								) : items.length === 0 ? (
-									<tr>										
-									</tr>
-								) : (
+								)  : (
 									items.map(e => (
 										<tr key={e.id}>
 											<td>{e.id}</td>
 											<td>{e.name}</td>
 											<td>{e.quantity}</td>
 											<td>{['New','Excellent','Good','Fair','Poor','Broken'][e.condition] ?? e.condition}</td>
-											  <td>{e.studioName}</td>
+											  <td>{e.studioName ?? e.studioId}</td>
 											<td className="d-flex justify-content-center gap-3">
 												<button className="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#equipmentModal" onClick={()=>startEdit(e)}>
 													<i className="fas fa-edit"></i>
